@@ -10,7 +10,8 @@ INA226 INA(0x40);
 #define SCL 18
 #define RST U8X8_PIN_NONE
 
-U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, RST);
+// U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, RST);
+U8G2_SH1107_128X128_F_HW_I2C u8g2(U8G2_R0, RST);
 
 float busVoltage = 0;
 float current_mA = 0;
@@ -618,7 +619,6 @@ void btn_scan(void *args)
 {
   while (1)
   {
-
     btn.val = digitalRead(SW);
     if (btn.val != btn.val_last)
     {
@@ -627,7 +627,6 @@ void btn_scan(void *args)
       btn.val = digitalRead(SW);
       if (btn.val == LOW)
       {
-        btn.pressed = true;
         btn.count = 0;
         while (!digitalRead(SW))
         {
@@ -644,9 +643,11 @@ void btn_scan(void *args)
           btn.id = BTN_ID_LP;
           Serial.println("长按");
         }
+        btn.pressed = true;
       }
     }
-    delay(1);
+
+    delay(5);
   }
 }
 
@@ -1734,6 +1735,5 @@ void setup()
 
 void loop()
 {
-  // btn_scan();
   ui_proc();
 }
