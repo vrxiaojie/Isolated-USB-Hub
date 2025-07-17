@@ -24,7 +24,7 @@ enum
   M_SLEEP,
   M_MAIN,
   M_EDITOR,
-  M_VOLT,
+  M_USB_MONITOR,
   M_SETTING,
   M_ABOUT,
 };
@@ -52,14 +52,14 @@ typedef struct MENU
 M_SELECT main_menu[]{
     {"Sleep"},
     {"Editor"},
-    {"Volt"},
+    {"USB"},
     {"Setting"},
 };
 // 小标题
 M_SELECT main_menu_exp[]{
     {"[ Activate Func ]"},
     {"[ Modify Func ]"},
-    {"[ View Voltages ]"},
+    {"[ Monitor of U I P ]"},
     {"[ Modify Config ]"},
 };
 
@@ -78,7 +78,7 @@ M_SELECT editor_menu[]{
 };
 
 // 最长3字符
-M_SELECT volt_menu[]{
+M_SELECT usb_monitor_menu[]{
     {"USB1"},
     {"USB2"},
     {"USB3"},
@@ -1355,31 +1355,19 @@ struct
   float bar_y_trg;
 } list;
 
-// 电压测量页面变量
-// 开发板模拟引脚
-// uint8_t analog_pin[6] = {A0, A3, A4, A5, A6, A7};
-// 曲线相关
-// #define WAVE_SAMPLE 20    // 采集倍数
-// #define WAVE_W DISP_W     // 波形宽度
-// #define WAVE_L 0          // 波形左边距
-// #define WAVE_U 0          // 波形上边距
-// #define WAVE_MAX 43       // 最大值
-// #define WAVE_MIN 5        // 最小值
-// #define WAVE_BOX_H 49     // 波形边框高度
-// #define WAVE_BOX_W DISP_W // 波形边框宽度
-// 列表和文字背景框相关
-#define VOLT_FONT u8g2_font_helvB24_tr // 电压数字字体 宽30 高32
-#define UNIT_FONT u8g2_font_helvB14_tr // 单位字体  宽18 高18
-#define VOLT_LIST_U_S 94               // 列表上边距
-#define VOLT_TEXT_BG_U_S 53            // 文字背景框上边距
-#define VOLT_TEXT_BG_H 33              // 文字背景框高度
+// USB监视器页面变量
+#define USB_MONITOR_FONT u8g2_font_helvB24_tr      // 电压电流数字字体
+#define USB_MONITOR_UNIT_FONT u8g2_font_helvB14_tr // 单位字体
+#define USB_MONITOR_LIST_U_S 94                    // 列表上边距
+#define USB_MONITOR_TEXT_BG_U_S 53                 // 文字背景框上边距
+#define USB_MONITOR_TEXT_BG_H 33                   // 文字背景框高度
 
 struct
 {
   int val;
   float text_bg_l;
   float text_bg_l_trg;
-} volt;
+} usb_monitor;
 
 // 选择框变量
 
@@ -1594,12 +1582,14 @@ void ui_param_init()
 // 列表类页面列表行数初始化，必须初始化的参数
 void ui_init()
 {
+  // 修改默认在主菜单的下标为2的磁贴上
+  ui.select[0] = 2;
   ui.num[M_MAIN] = sizeof(main_menu) / sizeof(M_SELECT);
   ui.num[M_EDITOR] = sizeof(editor_menu) / sizeof(M_SELECT);
   // ui.num[M_KNOB]      = sizeof( knob_menu     )   / sizeof(M_SELECT);
   // ui.num[M_KRF]       = sizeof( krf_menu      )   / sizeof(M_SELECT);
   // ui.num[M_KPF]       = sizeof( kpf_menu      )   / sizeof(M_SELECT);
-  ui.num[M_VOLT] = sizeof(volt_menu) / sizeof(M_SELECT);
+  ui.num[M_USB_MONITOR] = sizeof(usb_monitor_menu) / sizeof(M_SELECT);
   ui.num[M_SETTING] = sizeof(setting_menu) / sizeof(M_SELECT);
   ui.num[M_ABOUT] = sizeof(about_menu) / sizeof(M_SELECT);
 }
@@ -1635,11 +1625,11 @@ void sleep_param_init()
   }
 }
 
-// 电压测量页初始化
-void volt_param_init()
+// USB监视器测量页初始化
+void usb_monitor_param_init()
 {
-  volt.text_bg_l = 0;
-  volt.text_bg_l_trg = DISP_W;
+  usb_monitor.text_bg_l = 0;
+  usb_monitor.text_bg_l_trg = DISP_W;
 }
 
 // 设置页初始化
@@ -1681,8 +1671,8 @@ void layer_init_in()
   case M_MAIN:
     tile_param_init();
     break; // 睡眠进入主菜单，动画初始化
-  case M_VOLT:
-    volt_param_init();
+  case M_USB_MONITOR:
+    usb_monitor_param_init();
     break; // 主菜单进入电压测量页，动画初始化
   case M_SETTING:
     setting_param_init();
@@ -1944,24 +1934,24 @@ void list_show(struct MENU arr[], uint8_t ui_index)
     switch (ui.index)
     {
     case M_WINDOW:
-    case M_VOLT:
+    case M_USB_MONITOR:
       u8g2.drawBox(0, 0, DISP_W, DISP_H);
     }
   }
 }
 
 // 电压页面显示函数
-void volt_show()
+void usb_monitor_show()
 {
   // 使用列表类显示选项
   u8g2.setFont(LIST_FONT);
-  list.box_x_trg = u8g2.getStrWidth(volt_menu[ui.select[ui.layer]].m_select) + LIST_TEXT_S * 2;
+  list.box_x_trg = u8g2.getStrWidth(usb_monitor_menu[ui.select[ui.layer]].m_select) + LIST_TEXT_S * 2;
 
   // 计算动画过渡值
   animation(&list.y, &list.y_trg, LIST_ANI);
   animation(&list.box_x, &list.box_x_trg, LIST_ANI);
   animation(&list.box_y, &list.box_y_trg[ui.layer], LIST_ANI);
-  animation(&volt.text_bg_l, &volt.text_bg_l_trg, TAG_ANI);
+  animation(&usb_monitor.text_bg_l, &usb_monitor.text_bg_l_trg, TAG_ANI);
 
   // 检查循环动画是否结束
   if (list.loop && list.box_y == list.box_y_trg[ui.layer])
@@ -1975,7 +1965,7 @@ void volt_show()
   if (!ui.init)
   {
     for (uint8_t i = 0; i < ui.num[ui.index]; ++i)
-      u8g2.drawStr(LIST_TEXT_S + (i - ui.select[ui.layer]) * list.y + list.box_y_trg[ui.layer] - 1, VOLT_LIST_U_S, volt_menu[i].m_select);
+      u8g2.drawStr(LIST_TEXT_S + (i - ui.select[ui.layer]) * list.y + list.box_y_trg[ui.layer] - 1, USB_MONITOR_LIST_U_S, usb_monitor_menu[i].m_select);
     if (list.y == list.y_trg)
     {
       ui.init = true;
@@ -1984,7 +1974,7 @@ void volt_show()
   }
   else
     for (uint8_t i = 0; i < ui.num[ui.index]; ++i)
-      u8g2.drawStr(LIST_TEXT_S + LIST_LINE_H * i + (int16_t)list.y - 1, VOLT_LIST_U_S, volt_menu[i].m_select);
+      u8g2.drawStr(LIST_TEXT_S + LIST_LINE_H * i + (int16_t)list.y - 1, USB_MONITOR_LIST_U_S, usb_monitor_menu[i].m_select);
 
   // 根据当前选择的USB端口，绘制当前USB的电压、电流、功率
   uint32_t idx = ui.select[ui.layer];
@@ -2000,40 +1990,40 @@ void volt_show()
     if (ina226_data[idx].init)
     {
 
-      u8g2.setFont(VOLT_FONT);
+      u8g2.setFont(USB_MONITOR_FONT);
       u8g2.setCursor(0, 28);
       u8g2.printf("%1.2f", ina226_data[idx].busVoltage);
-      u8g2.setFont(UNIT_FONT);
+      u8g2.setFont(USB_MONITOR_UNIT_FONT);
       u8g2.setCursor(101, 23);
       u8g2.print("V");
 
-      u8g2.setFont(VOLT_FONT);
+      u8g2.setFont(USB_MONITOR_FONT);
       u8g2.setCursor(0, 56);
       u8g2.printf("%3.1f", ina226_data[idx].current_mA);
-      u8g2.setFont(UNIT_FONT);
+      u8g2.setFont(USB_MONITOR_UNIT_FONT);
       u8g2.setCursor(92, 51);
       u8g2.print("mA");
 
-      u8g2.setFont(VOLT_FONT);
+      u8g2.setFont(USB_MONITOR_FONT);
       u8g2.setCursor(0, 84);
       if (ina226_data[idx].power_mW < 1000)
       {
         u8g2.printf("%3.1f", ina226_data[idx].power_mW);
-        u8g2.setFont(UNIT_FONT);
+        u8g2.setFont(USB_MONITOR_UNIT_FONT);
         u8g2.setCursor(92, 79);
         u8g2.print("mW");
       }
       else
       {
         u8g2.printf("%2.2f", ina226_data[idx].power_mW / 1000.0);
-        u8g2.setFont(UNIT_FONT);
+        u8g2.setFont(USB_MONITOR_UNIT_FONT);
         u8g2.setCursor(101, 79);
         u8g2.print("W");
       }
     }
     else
     {
-      u8g2.setFont(VOLT_FONT);
+      u8g2.setFont(USB_MONITOR_FONT);
       u8g2.setCursor(0, 30);
       u8g2.print("NO");
       u8g2.setCursor(0, 60);
@@ -2044,7 +2034,7 @@ void volt_show()
 
   // 绘制列表选择框
   u8g2.setDrawColor(2);
-  u8g2.drawRBox(list.box_y, VOLT_LIST_U_S - LIST_TEXT_S, LIST_LINE_H, list.box_x, LIST_BOX_R); // 列表选择框
+  u8g2.drawRBox(list.box_y, USB_MONITOR_LIST_U_S - LIST_TEXT_S, LIST_LINE_H, list.box_x, LIST_BOX_R); // 列表选择框
 
   // 反转屏幕内元素颜色，白天模式遮罩
   if (!ui.param[DARK_MODE])
@@ -2323,7 +2313,7 @@ void main_proc()
         ui.state = S_LAYER_IN;
         break;
       case 2:
-        ui.index = M_VOLT;
+        ui.index = M_USB_MONITOR;
         ui.state = S_LAYER_IN;
         break;
       case 3:
@@ -2369,9 +2359,9 @@ void editor_proc()
   }
 }
 // 电压测量页处理函数
-void volt_proc()
+void usb_monitor_proc()
 {
-  volt_show();
+  usb_monitor_show();
   if (btn.pressed)
   {
     btn.pressed = false;
@@ -2545,8 +2535,8 @@ void ui_proc()
     // case M_KNOB:        knob_proc();              break;
     // case M_KRF:         krf_proc();               break;
     // case M_KPF:         kpf_proc();               break;
-    case M_VOLT:
-      volt_proc();
+    case M_USB_MONITOR:
+      usb_monitor_proc();
       break;
     case M_SETTING:
       setting_proc();
