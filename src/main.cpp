@@ -23,7 +23,7 @@ enum
   M_WINDOW,
   M_SLEEP,
   M_MAIN,
-  M_EDITOR,
+  M_SWITCH,
   M_USB_MONITOR,
   M_SETTING,
   M_ABOUT,
@@ -51,19 +51,19 @@ typedef struct MENU
 // 大标题
 M_SELECT main_menu[]{
     {"Sleep"},
-    {"Editor"},
+    {"Switch"},
     {"USB"},
     {"Setting"},
 };
 // 小标题
 M_SELECT main_menu_exp[]{
-    {"[ Activate Func ]"},
-    {"[ Modify Func ]"},
-    {"[ Monitor of U I P ]"},
-    {"[ Modify Config ]"},
+    {"[ 进入睡眠模式 ]"},
+    {"[ 控制USB的开关 ]"},
+    {"[ 监测电压 电流 功率 ]"},
+    {"[ 修改设置 ]"},
 };
 
-M_SELECT editor_menu[]{
+M_SELECT switch_menu[]{
     {"[ Editor ]"},
     {"- Function 0"},
     {"- Function 1"},
@@ -77,46 +77,45 @@ M_SELECT editor_menu[]{
     {"- Function 9"},
 };
 
-// 最长3字符
 M_SELECT usb_monitor_menu[]{
     {"USB1"},
     {"USB2"},
     {"USB3"},
     {"USB4"},
-    {"AUTO"},
-    {"CFG"},
+    {"循环"},
+    {"设置"},
 };
 
 M_SELECT setting_menu[]{
-    {"[ Setting ]"},
-    {"~ Disp Bri"},
-    {"~ Tile Ani"},
-    {"~ List Ani"},
-    {"~ Win Ani"},
-    {"~ Spot Ani"},
-    {"~ Tag Ani"},
-    {"~ Fade Ani"},
-    {"~ Btn SPT"},
-    {"~ Btn LPT"},
-    {"+ T Ufd Fm Scr"},
-    {"+ L Ufd Fm Scr"},
-    {"+ T Loop Mode"},
-    {"+ L Loop Mode"},
-    {"+ Win Bokeh Bg"},
-    {"+ Knob Rot Dir"},
-    {"+ Dark Mode"},
-    {"- [ About ]"},
+    // 前缀~代表整数；+代表复选框
+    {"[   设置   ]"},
+    {"~ 屏幕亮度"},
+    {"~ 磁贴动画速度"},
+    {"~ 列表动画速度"},
+    {"~ 弹窗动画速度"},
+    {"~ 聚光动画速度"},
+    {"~ 标签动画速度"},
+    {"~ 消失动画速度"},
+    {"~ 按键短按时长"},
+    {"~ 按键长按时长"},
+    {"+ 磁贴从头展开"},
+    {"+ 列表从头展开"},
+    {"+ 磁贴循环"},
+    {"+ 列表循环"},
+    {"+ 弹窗背景虚化"},
+    {"+ 深色模式"},
+    {"- [ 关于 ]"},
 };
 
 M_SELECT about_menu[]{
-    {"[ WouoUI ]"},
-    {"- Version: v2.3"},
-    {"- Board: ESP32"},
-    {"- SRam: 520KB"},
-    {"- Flash: 4MB"},
-    {"- Freq: 240Mhz"},
-    {"- Creator: RQNG"},
-    {"- Bili UID: 9182439"},
+    {"[ ESP32-HUB ]"},
+    {"- 作者VRxiaojie"},
+    {"- 版本:v1.0"},
+    {"- 主控:ESP32S3"},
+    {"- SRAM: 8MB"},
+    {"- Flash: 8MB"},
+    {"- UI修改自WonoUI"},
+    {"- 感谢原作者RQNG"},
 };
 
 /************************************* 图片内容 *************************************/
@@ -1295,7 +1294,7 @@ ui_t ui = {.index = M_MAIN, .sleep = false, .fade = 1};
 // 磁贴变量
 // 所有磁贴页面都使用同一套参数
 #define TILE_B_FONT u8g2_font_helvB24_tr      // 磁贴大标题字体
-#define TILE_S_FONT u8g2_font_HelvetiPixel_tr // 磁贴小标题字体
+#define TILE_S_FONT u8g2_font_wqy12_t_gb2312a // 磁贴小标题字体
 #define TILE_B_TITLE_H 25                     // 磁贴大标题字体高度
 #define TILE_S_TITLE_H 8                      // 磁贴小标题字体高度
 #define TILE_ICON_H 48                        // 磁贴图标高度
@@ -1324,7 +1323,7 @@ struct
 // 列表变量
 // 默认参数
 
-#define LIST_FONT u8g2_font_HelvetiPixel_tr // 列表字体
+#define LIST_FONT u8g2_font_wqy12_t_gb2312a // 列表字体
 #define LIST_TEXT_H 8                       // 列表每行文字字体的高度
 #define LIST_LINE_H 16                      // 列表单行高度
 #define LIST_TEXT_S 4                       // 列表每行文字的上边距，左边距和右边距，下边距由它和字体高度和行高度决定
@@ -1585,7 +1584,7 @@ void ui_init()
   // 修改默认在主菜单的下标为2的磁贴上
   ui.select[0] = 2;
   ui.num[M_MAIN] = sizeof(main_menu) / sizeof(M_SELECT);
-  ui.num[M_EDITOR] = sizeof(editor_menu) / sizeof(M_SELECT);
+  ui.num[M_SWITCH] = sizeof(switch_menu) / sizeof(M_SELECT);
   // ui.num[M_KNOB]      = sizeof( knob_menu     )   / sizeof(M_SELECT);
   // ui.num[M_KRF]       = sizeof( krf_menu      )   / sizeof(M_SELECT);
   // ui.num[M_KPF]       = sizeof( kpf_menu      )   / sizeof(M_SELECT);
@@ -1800,11 +1799,11 @@ void tile_show(struct MENU arr_1[], struct MENU arr_2[], const uint8_t icon_pic[
 
   // 绘制大标题
   u8g2.setFont(TILE_B_FONT);
-  u8g2.drawStr(((DISP_W - TILE_INDI_W) - u8g2.getStrWidth(arr_1[ui.select[ui.layer]].m_select)) / 2 + TILE_INDI_W, tile.title_y, arr_1[ui.select[ui.layer]].m_select);
+  u8g2.drawUTF8(((DISP_W - TILE_INDI_W) - u8g2.getUTF8Width(arr_1[ui.select[ui.layer]].m_select)) / 2 + TILE_INDI_W, tile.title_y, arr_1[ui.select[ui.layer]].m_select);
 
   // 绘制小标题
   u8g2.setFont(TILE_S_FONT);
-  u8g2.drawStr(((DISP_W - u8g2.getStrWidth(arr_2[ui.select[ui.layer]].m_select)) / 2), 0.5 * (TILE_ICON_S + TILE_INDI_H + DISP_H + LIST_TEXT_H), arr_2[ui.select[ui.layer]].m_select);
+  u8g2.drawUTF8(((DISP_W - u8g2.getUTF8Width(arr_2[ui.select[ui.layer]].m_select)) / 2), 0.5 * (TILE_ICON_S + TILE_INDI_H + DISP_H + LIST_TEXT_H), arr_2[ui.select[ui.layer]].m_select);
 
   // 绘制大标题指示器
   u8g2.drawBox(0, TILE_ICON_S, tile.indi_x, TILE_INDI_H);
@@ -1850,7 +1849,7 @@ void list_draw_check_box_dot() { u8g2.drawBox(CHECK_BOX_L_S + CHECK_BOX_D_S + 1,
 // 判断列表尾部内容
 void list_draw_text_and_check_box(struct MENU arr[], int i)
 {
-  u8g2.drawStr(LIST_TEXT_S, list.temp + LIST_TEXT_H + LIST_TEXT_S, arr[i].m_select);
+  u8g2.drawUTF8(LIST_TEXT_S, list.temp + LIST_TEXT_H + LIST_TEXT_S, arr[i].m_select);
   u8g2.setCursor(CHECK_BOX_L_S, list.temp + LIST_TEXT_H + LIST_TEXT_S);
   switch (arr[i].m_select[0])
   {
@@ -1877,7 +1876,7 @@ void list_show(struct MENU arr[], uint8_t ui_index)
 {
   // 更新动画目标值
   u8g2.setFont(LIST_FONT);
-  list.box_x_trg = u8g2.getStrWidth(arr[ui.select[ui.layer]].m_select) + LIST_TEXT_S * 2;
+  list.box_x_trg = u8g2.getUTF8Width(arr[ui.select[ui.layer]].m_select) + LIST_TEXT_S * 2;
   list.bar_y_trg = ceil((ui.select[ui.layer]) * ((float)DISP_H / (ui.num[ui_index] - 1)));
 
   // 计算动画过渡值
@@ -1945,7 +1944,7 @@ void usb_monitor_show()
 {
   // 使用列表类显示选项
   u8g2.setFont(LIST_FONT);
-  list.box_x_trg = u8g2.getStrWidth(usb_monitor_menu[ui.select[ui.layer]].m_select) + LIST_TEXT_S * 2;
+  list.box_x_trg = u8g2.getUTF8Width(usb_monitor_menu[ui.select[ui.layer]].m_select) + LIST_TEXT_S * 2;
 
   // 计算动画过渡值
   animation(&list.y, &list.y_trg, LIST_ANI);
@@ -1965,7 +1964,7 @@ void usb_monitor_show()
   if (!ui.init)
   {
     for (uint8_t i = 0; i < ui.num[ui.index]; ++i)
-      u8g2.drawStr(LIST_TEXT_S + (i - ui.select[ui.layer]) * list.y + list.box_y_trg[ui.layer] - 1, USB_MONITOR_LIST_U_S, usb_monitor_menu[i].m_select);
+      u8g2.drawUTF8(LIST_TEXT_S + (i - ui.select[ui.layer]) * list.y + list.box_y_trg[ui.layer] - 1, USB_MONITOR_LIST_U_S, usb_monitor_menu[i].m_select);
     if (list.y == list.y_trg)
     {
       ui.init = true;
@@ -1974,7 +1973,7 @@ void usb_monitor_show()
   }
   else
     for (uint8_t i = 0; i < ui.num[ui.index]; ++i)
-      u8g2.drawStr(LIST_TEXT_S + LIST_LINE_H * i + (int16_t)list.y - 1, USB_MONITOR_LIST_U_S, usb_monitor_menu[i].m_select);
+      u8g2.drawUTF8(LIST_TEXT_S + LIST_LINE_H * i + (int16_t)list.y - 1, USB_MONITOR_LIST_U_S, usb_monitor_menu[i].m_select);
 
   // 根据当前选择的USB端口，绘制当前USB的电压、电流、功率
   uint32_t idx = ui.select[ui.layer];
@@ -2309,7 +2308,7 @@ void main_proc()
         ui.state = S_LAYER_OUT;
         break;
       case 1:
-        ui.index = M_EDITOR;
+        ui.index = M_SWITCH;
         ui.state = S_LAYER_IN;
         break;
       case 2:
@@ -2330,10 +2329,10 @@ void main_proc()
   }
 }
 
-// 编辑器菜单处理函数
-void editor_proc()
+// 开关菜单处理函数
+void switch_proc()
 {
-  list_show(editor_menu, M_EDITOR);
+  list_show(switch_menu, M_SWITCH);
   if (btn.pressed)
   {
     btn.pressed = false;
@@ -2529,8 +2528,8 @@ void ui_proc()
     case M_MAIN:
       main_proc();
       break;
-    case M_EDITOR:
-      editor_proc();
+    case M_SWITCH:
+      switch_proc();
       break;
     // case M_KNOB:        knob_proc();              break;
     // case M_KRF:         krf_proc();               break;
