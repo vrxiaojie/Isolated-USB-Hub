@@ -1,20 +1,15 @@
 #include <U8g2lib.h>
 #include <Wire.h>
-#include "INA226.h"
+#include "ina226_data.h"
+#include "RTOS_Task.h"
 #include "FreeRTOS.h"
 #include "task.h"
-
-INA226 INA(0x40);
 
 #define SDA 8
 #define SCL 18
 #define RST U8X8_PIN_NONE
 
 U8G2_SH1107_SEEED_128X128_F_HW_I2C u8g2(U8G2_R0, RST);
-
-float busVoltage = 0;
-float current_mA = 0;
-float power = 0;
 
 void ui_param_init();
 
@@ -80,13 +75,14 @@ M_SELECT editor_menu[]{
     {"- Function 9"},
 };
 
+// 最长3字符
 M_SELECT volt_menu[]{
-    {"A0"},
-    {"A3"},
-    {"A4"},
-    {"A5"},
-    {"A6"},
-    {"A7"},
+    {"USB1"},
+    {"USB2"},
+    {"USB3"},
+    {"USB4"},
+    {"AUTO"},
+    {"CFG"},
 };
 
 M_SELECT setting_menu[]{
@@ -1395,26 +1391,25 @@ struct
 
 // 电压测量页面变量
 // 开发板模拟引脚
-uint8_t analog_pin[6] = {A0, A3, A4, A5, A6, A7};
+// uint8_t analog_pin[6] = {A0, A3, A4, A5, A6, A7};
 // 曲线相关
-#define WAVE_SAMPLE 20    // 采集倍数
-#define WAVE_W DISP_W     // 波形宽度
-#define WAVE_L 0          // 波形左边距
-#define WAVE_U 0          // 波形上边距
-#define WAVE_MAX 43       // 最大值
-#define WAVE_MIN 5        // 最小值
-#define WAVE_BOX_H 49     // 波形边框高度
-#define WAVE_BOX_W DISP_W // 波形边框宽度
+// #define WAVE_SAMPLE 20    // 采集倍数
+// #define WAVE_W DISP_W     // 波形宽度
+// #define WAVE_L 0          // 波形左边距
+// #define WAVE_U 0          // 波形上边距
+// #define WAVE_MAX 43       // 最大值
+// #define WAVE_MIN 5        // 最小值
+// #define WAVE_BOX_H 49     // 波形边框高度
+// #define WAVE_BOX_W DISP_W // 波形边框宽度
 // 列表和文字背景框相关
-#define VOLT_FONT u8g2_font_helvB24_tr // 电压数字字体
+#define VOLT_FONT u8g2_font_helvB24_tr // 电压数字字体 宽30 高32
+#define UNIT_FONT u8g2_font_helvB14_tr // 单位字体  宽18 高18
 #define VOLT_LIST_U_S 94               // 列表上边距
 #define VOLT_TEXT_BG_U_S 53            // 文字背景框上边距
 #define VOLT_TEXT_BG_H 33              // 文字背景框高度
 
 struct
 {
-  int ch0_adc[WAVE_SAMPLE * WAVE_W];
-  int ch0_wave[WAVE_W];
   int val;
   float text_bg_l;
   float text_bg_l_trg;
@@ -2129,32 +2124,65 @@ void volt_show()
     for (uint8_t i = 0; i < ui.num[ui.index]; ++i)
       u8g2.drawStr(LIST_TEXT_S + LIST_LINE_H * i + (int16_t)list.y - 1, VOLT_LIST_U_S, volt_menu[i].m_select);
 
-  // 绘制电压曲线和外框
-  volt.val = 0;
-  u8g2.drawFrame(0, 0, WAVE_BOX_W, WAVE_BOX_H);
-  u8g2.drawFrame(1, 1, WAVE_BOX_W - 2, WAVE_BOX_H - 2);
-  if (list.box_y == list.box_y_trg[ui.layer] && list.y == list.y_trg)
+  // 根据当前选择的USB端口，绘制当前USB的电压、电流、功率
+  uint32_t idx = ui.select[ui.layer];
+  u8g2.setFontDirection(0);
+  switch (idx)
   {
-    for (int i = 0; i < WAVE_SAMPLE * WAVE_W; i++)
-      volt.ch0_adc[i] = volt.val = analogRead(analog_pin[ui.select[ui.layer]]);
-    for (int i = 1; i < WAVE_W - 1; i++)
+  // 根据当前选择的USB端口(1~4)，通知INA226任务去获取对应通道的数据
+  case 0:
+  case 1:
+  case 2:
+  case 3:
+    xTaskNotify(INA226_Task_Handle, idx, eSetValueWithOverwrite);
+    if (ina226_data[idx].init)
     {
-      volt.ch0_wave[i] = map(volt.ch0_adc[int(5 * i)], 0, 4095, WAVE_MAX, WAVE_MIN);
-      u8g2.drawLine(WAVE_L + i - 1, WAVE_U + volt.ch0_wave[i - 1], WAVE_L + i, WAVE_U + volt.ch0_wave[i]);
+
+      u8g2.setFont(VOLT_FONT);
+      u8g2.setCursor(0, 28);
+      u8g2.printf("%1.2f", ina226_data[idx].busVoltage);
+      u8g2.setFont(UNIT_FONT);
+      u8g2.setCursor(101, 23);
+      u8g2.print("V");
+
+      u8g2.setFont(VOLT_FONT);
+      u8g2.setCursor(0, 56);
+      u8g2.printf("%3.1f", ina226_data[idx].current_mA);
+      u8g2.setFont(UNIT_FONT);
+      u8g2.setCursor(92, 51);
+      u8g2.print("mA");
+
+      u8g2.setFont(VOLT_FONT);
+      u8g2.setCursor(0, 84);
+      if (ina226_data[idx].power_mW < 1000)
+      {
+        u8g2.printf("%3.1f", ina226_data[idx].power_mW);
+        u8g2.setFont(UNIT_FONT);
+        u8g2.setCursor(92, 79);
+        u8g2.print("mW");
+      }
+      else
+      {
+        u8g2.printf("%2.2f", ina226_data[idx].power_mW / 1000.0);
+        u8g2.setFont(UNIT_FONT);
+        u8g2.setCursor(101, 79);
+        u8g2.print("W");
+      }
     }
+    else
+    {
+      u8g2.setFont(VOLT_FONT);
+      u8g2.setCursor(0, 30);
+      u8g2.print("NO");
+      u8g2.setCursor(0, 60);
+      u8g2.print("DATA");
+    }
+    break;
   }
 
-  // 绘制电压值
-  u8g2.setFontDirection(0);
-  u8g2.setFont(VOLT_FONT);
-  u8g2.setCursor(23, VOLT_LIST_U_S - 12);
-  u8g2.print(volt.val / 4096.0f * 3.3f);
-  u8g2.print("V");
-
-  // 绘制列表选择框和电压文字背景
+  // 绘制列表选择框
   u8g2.setDrawColor(2);
-  u8g2.drawRBox(list.box_y, VOLT_LIST_U_S - LIST_TEXT_S, LIST_LINE_H, list.box_x, LIST_BOX_R);
-  u8g2.drawBox(DISP_W - volt.text_bg_l, VOLT_TEXT_BG_U_S, DISP_W, VOLT_TEXT_BG_H);
+  u8g2.drawRBox(list.box_y, VOLT_LIST_U_S - LIST_TEXT_S, LIST_LINE_H, list.box_x, LIST_BOX_R); // 列表选择框
 
   // 反转屏幕内元素颜色，白天模式遮罩
   if (!ui.param[DARK_MODE])
@@ -2493,6 +2521,8 @@ void volt_proc()
       break;
 
     case BTN_ID_SP:
+      // do nothing
+      break;
     case BTN_ID_LP:
       ui.index = M_MAIN;
       ui.state = S_LAYER_OUT;
@@ -2676,23 +2706,6 @@ void oled_init()
   buf_len = 8 * u8g2.getBufferTileHeight() * u8g2.getBufferTileWidth();
 }
 
-// TODO: 进入电压电流页面之后，通过信号量控制该任务启动
-void INA226_Task(void *arg)
-{
-  if (!INA.begin())
-  {
-    Serial.println("could not connect. Fix and Reboot");
-  }
-  INA.setMaxCurrentShunt(0.8, 0.1);
-  for (;;)
-  {
-    busVoltage = INA.getBusVoltage();
-    current_mA = INA.getCurrent_mA();
-    power = INA.getPower_mW();
-    delay(100);
-  }
-}
-
 void setup()
 {
   Serial.begin(115200);
@@ -2703,7 +2716,8 @@ void setup()
   oled_init();
   btn_init();
   tile_param_init(); // 默认进入主菜单ui.index = M_MAIN，需要初始化磁贴
-  xTaskCreate(INA226_Task, "ina226", 1024 * 10, NULL, 3, NULL);
+
+  xTaskCreate(INA226_Task, "ina226", 1024 * 10, NULL, 3, &INA226_Task_Handle);
   xTaskCreate(btn_scan, "knob", 1024 * 20, NULL, 4, NULL);
 }
 
