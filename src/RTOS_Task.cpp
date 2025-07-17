@@ -45,3 +45,42 @@ void INA226_Task(void *arg)
         delay(100);
     }
 }
+
+#include "knob.h"
+#include "main.h"
+// 扫描编码器按键按下的任务
+void btn_scan(void *args)
+{
+    while (1)
+    {
+        btn.val = digitalRead(SW);
+        if (btn.val != btn.val_last)
+        {
+            btn.val_last = btn.val;
+            delay(ui.param[BTN_SPT] * BTN_PARAM_TIMES);
+            btn.val = digitalRead(SW);
+            if (btn.val == LOW)
+            {
+                btn.count = 0;
+                while (!digitalRead(SW))
+                {
+                    btn.count++;
+                    delay(1);
+                }
+                if (btn.count < ui.param[BTN_LPT] * BTN_PARAM_TIMES)
+                {
+                    btn.id = BTN_ID_SP;
+                    Serial.println("短按");
+                }
+                else
+                {
+                    btn.id = BTN_ID_LP;
+                    Serial.println("长按");
+                }
+                btn.pressed = true;
+            }
+        }
+
+        delay(5);
+    }
+}

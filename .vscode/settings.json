@@ -2,6 +2,7 @@
     "files.associations": {
         "memory_resource": "cpp",
         "numeric": "cpp",
-        "limits": "cpp"
+        "limits": "cpp",
+        "random": "cpp"
     }
 }

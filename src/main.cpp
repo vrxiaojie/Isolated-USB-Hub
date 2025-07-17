@@ -4,6 +4,8 @@
 #include "RTOS_Task.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "main.h"
+#include "knob.h"
 
 #define SDA 8
 #define SCL 18
@@ -1283,48 +1285,12 @@ PROGMEM const uint8_t main_icon_pic[][16 * 18]{
 };
 
 /************************************* 页面变量 *************************************/
+uint8_t *buf_ptr; // 指向屏幕缓冲的指针
+uint16_t buf_len; // 缓冲长度
 
-// OLED变量
-#define DISP_H 128 // 屏幕高度
-#define DISP_W 128 // 屏幕宽度
-uint8_t *buf_ptr;  // 指向屏幕缓冲的指针
-uint16_t buf_len;  // 缓冲长度
-
-// UI变量
-#define UI_DEPTH 20  // 最深层级数
-#define UI_MNUMB 100 // 菜单数量
-#define UI_PARAM 16  // 参数数量
-enum
-{
-  DISP_BRI,  // 屏幕亮度
-  TILE_ANI,  // 磁贴动画速度
-  LIST_ANI,  // 列表动画速度
-  WIN_ANI,   // 弹窗动画速度
-  SPOT_ANI,  // 聚光动画速度
-  TAG_ANI,   // 标签动画速度
-  FADE_ANI,  // 消失动画速度
-  BTN_SPT,   // 按键短按时长
-  BTN_LPT,   // 按键长按时长
-  TILE_UFD,  // 磁贴图标从头展开开关
-  LIST_UFD,  // 菜单列表从头展开开关
-  TILE_LOOP, // 磁贴图标循环模式开关
-  LIST_LOOP, // 菜单列表循环模式开关
-  WIN_BOK,   // 弹窗背景虚化开关
-  KNOB_DIR,  // 旋钮方向切换开关
-  DARK_MODE, // 黑暗模式开关
-};
-struct
-{
-  bool init;
-  uint8_t num[UI_MNUMB];
-  uint8_t select[UI_DEPTH];
-  uint8_t layer;
-  uint8_t index = M_MAIN; // 修改为默认进入主菜单 原：uint8_t index = M_SLEEP;
-  uint8_t state = S_NONE;
-  bool sleep = false; // 修改为默认不睡眠。原:bool sleep = true;
-  uint8_t fade = 1;
-  uint8_t param[UI_PARAM];
-} ui;
+// 修改为默认进入主菜单 原：uint8_t index = M_SLEEP;
+// 修改为默认不睡眠。原:bool sleep = true;
+ui_t ui = {.index = M_MAIN, .sleep = false, .fade = 1};
 
 // 磁贴变量
 // 所有磁贴页面都使用同一套参数
@@ -1547,110 +1513,6 @@ void eeprom_init()
     eeprom_read_all_data(); // 允许一位误码
   else
     ui_param_init();
-}
-
-/************************************* 旋钮相关 *************************************/
-// 按键ID
-#define BTN_ID_CC 0 // 逆时针旋转
-#define BTN_ID_CW 1 // 顺时针旋转
-#define BTN_ID_SP 2 // 短按
-#define BTN_ID_LP 3 // 长按
-
-// 可按下旋钮引脚
-#define AIO 40
-#define BIO 39
-#define SW 38
-
-// 按键变量
-#define BTN_PARAM_TIMES 2 // 由于uint8_t最大值可能不够，但它存储起来方便，这里放大两倍使用
-struct
-{
-  uint8_t id;
-  bool flag;
-  bool pressed;
-  bool CW_1;
-  bool CW_2;
-  bool val;
-  bool val_last;
-  bool alv;
-  bool blv;
-  long count;
-} volatile btn;
-
-// 编码器旋转判断
-void knob_inter()
-{
-  btn.alv = digitalRead(AIO);
-  btn.blv = digitalRead(BIO);
-  if (!btn.flag && btn.alv == LOW)
-  {
-    btn.CW_1 = btn.blv;
-    btn.flag = true;
-  }
-  if (btn.flag && btn.alv)
-  {
-    btn.CW_2 = !btn.blv;
-    if (btn.CW_1 && btn.CW_2)
-    {
-      Serial.println("顺时针");
-      btn.id = BTN_ID_CC;
-      btn.pressed = true;
-    }
-    if (btn.CW_1 == false && btn.CW_2 == false)
-    {
-      Serial.println("逆时针");
-      btn.id = BTN_ID_CW;
-      btn.pressed = true;
-    }
-    btn.flag = false;
-  }
-}
-
-// 扫描编码器按键按下
-void btn_scan(void *args)
-{
-  while (1)
-  {
-    btn.val = digitalRead(SW);
-    if (btn.val != btn.val_last)
-    {
-      btn.val_last = btn.val;
-      delay(ui.param[BTN_SPT] * BTN_PARAM_TIMES);
-      btn.val = digitalRead(SW);
-      if (btn.val == LOW)
-      {
-        btn.count = 0;
-        while (!digitalRead(SW))
-        {
-          btn.count++;
-          delay(1);
-        }
-        if (btn.count < ui.param[BTN_LPT] * BTN_PARAM_TIMES)
-        {
-          btn.id = BTN_ID_SP;
-          Serial.println("短按");
-        }
-        else
-        {
-          btn.id = BTN_ID_LP;
-          Serial.println("长按");
-        }
-        btn.pressed = true;
-      }
-    }
-
-    delay(5);
-  }
-}
-
-void btn_init()
-{
-  // 初始化IO
-  // TODO: 实装时不需要上拉输入
-  pinMode(AIO, INPUT_PULLUP);
-  pinMode(BIO, INPUT_PULLUP);
-  pinMode(SW, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(AIO), knob_inter, CHANGE);
 }
 
 /************************************ 初始化函数 ***********************************/
