@@ -79,33 +79,7 @@ M_SELECT editor_menu[]{
     {"- Function 8"},
     {"- Function 9"},
 };
-/*
-M_SELECT knob_menu[]
-{
-  {"[ Knob ]"},
-  {"# Rotate Func"},
-  {"$ Press Func"},
-};
 
-M_SELECT krf_menu[]
-{
-  {"[ Rotate Function ]"},
-  {"--------------------------"},
-  {"= Disable"},
-  {"--------------------------"},
-  {"= Volume"},
-  {"= Brightness"},
-  {"--------------------------"},
-};
-
-M_SELECT kpf_menu[]
-{
-  {"[ Press Function ]"},
-  {"--------------------------"},
-  {"= Disable"},
-  {"--------------------------"}
-};
-*/
 M_SELECT volt_menu[]{
     {"A0"},
     {"A3"},
@@ -2026,34 +2000,6 @@ void list_draw_check_box_frame() { u8g2.drawRFrame(CHECK_BOX_L_S, list.temp + CH
 // 绘制框里面的点
 void list_draw_check_box_dot() { u8g2.drawBox(CHECK_BOX_L_S + CHECK_BOX_D_S + 1, list.temp + CHECK_BOX_U_S + CHECK_BOX_D_S + 1, CHECK_BOX_F_W - (CHECK_BOX_D_S + 1) * 2, CHECK_BOX_F_H - (CHECK_BOX_D_S + 1) * 2); }
 
-// 列表显示旋钮功能
-void list_draw_krf(int n)
-{
-  switch (check_box.v[n - 1])
-  {
-  case 0:
-    u8g2.print("OFF");
-    break;
-  case 1:
-    u8g2.print("VOL");
-    break;
-  case 2:
-    u8g2.print("BRI");
-    break;
-  }
-}
-
-// 列表显示按键键值
-void list_draw_kpf(int n)
-{
-  if (check_box.v[n - 1] == 0)
-    u8g2.print("OFF");
-  else if (check_box.v[n - 1] <= 90)
-    u8g2.print((char)check_box.v[n - 1]);
-  else
-    u8g2.print("?");
-}
-
 // 判断列表尾部内容
 void list_draw_text_and_check_box(struct MENU arr[], int i)
 {
@@ -2073,10 +2019,6 @@ void list_draw_text_and_check_box(struct MENU arr[], int i)
     list_draw_check_box_frame();
     if (*check_box.s_p == i)
       list_draw_check_box_dot();
-    break;
-  case '#': /*list_draw_krf(i);*/
-    break;
-  case '$': /*list_draw_kpf(i);*/
     break;
   }
 }
