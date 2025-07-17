@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "knob.h"
-#include "main.h"
+#include "ui.h"
 /************************************* 旋钮相关 *************************************/
 
 btn_t btn;

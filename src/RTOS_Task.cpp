@@ -47,7 +47,7 @@ void INA226_Task(void *arg)
 }
 
 #include "knob.h"
-#include "main.h"
+#include "ui.h"
 // 扫描编码器按键按下的任务
 void btn_scan(void *args)
 {
