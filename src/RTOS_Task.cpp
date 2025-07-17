@@ -1,6 +1,7 @@
 #include "RTOS_Task.h"
-
 #include "ina226_data.h"
+#include "knob.h"
+#include "ui.h"
 TaskHandle_t INA226_Task_Handle = NULL;
 void INA226_Task(void *arg)
 {
@@ -42,12 +43,10 @@ void INA226_Task(void *arg)
             // TODO:  自动轮换显示USB1~4数据
             break;
         }
-        delay(100);
+        delay(usb_monitor.param[REFRESH_INTERVAL] * 10); // 刷新间隔
     }
 }
 
-#include "knob.h"
-#include "ui.h"
 // 扫描编码器按键按下的任务
 void btn_scan(void *args)
 {

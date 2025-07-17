@@ -48,6 +48,11 @@ M_SELECT usb_monitor_menu[]{
     {"设置"},
 };
 
+M_SELECT usb_monitor_setting_menu[]{
+    {"USB监视器设置"},
+    {"~ 数据刷新间隔"},
+};
+
 M_SELECT setting_menu[]{
     // 前缀~代表整数；+代表复选框
     {"[   设置   ]"},
@@ -188,6 +193,7 @@ void ui_init()
     // ui.num[M_KRF]       = sizeof( krf_menu      )   / sizeof(M_SELECT);
     // ui.num[M_KPF]       = sizeof( kpf_menu      )   / sizeof(M_SELECT);
     ui.num[M_USB_MONITOR] = sizeof(usb_monitor_menu) / sizeof(M_SELECT);
+    ui.num[M_USB_MONITOR_SETTING] = sizeof(usb_monitor_setting_menu) / sizeof(M_SELECT);
     ui.num[M_SETTING] = sizeof(setting_menu) / sizeof(M_SELECT);
     ui.num[M_ABOUT] = sizeof(about_menu) / sizeof(M_SELECT);
 }
@@ -226,6 +232,9 @@ void sleep_param_init()
 // USB监视器测量页初始化
 void usb_monitor_param_init()
 {
+    // 单选框和数值的初始化
+    check_box_v_init(usb_monitor.param);
+    check_box_m_init(usb_monitor.param);
     usb_monitor.text_bg_l = 0;
     usb_monitor.text_bg_l_trg = DISP_W;
 }
@@ -477,26 +486,22 @@ void list_show(struct MENU arr[], uint8_t ui_index)
     u8g2.setFont(LIST_FONT);
     list.box_x_trg = u8g2.getUTF8Width(arr[ui.select[ui.layer]].m_select) + LIST_TEXT_S * 2;
     list.bar_y_trg = ceil((ui.select[ui.layer]) * ((float)DISP_H / (ui.num[ui_index] - 1)));
-
     // 计算动画过渡值
     animation(&list.y, &list.y_trg, LIST_ANI);
     animation(&list.box_x, &list.box_x_trg, LIST_ANI);
     animation(&list.box_y, &list.box_y_trg[ui.layer], LIST_ANI);
     animation(&list.bar_y, &list.bar_y_trg, LIST_ANI);
-
     // 检查循环动画是否结束
     if (list.loop && list.box_y == list.box_y_trg[ui.layer])
         list.loop = false;
 
     // 设置文字和进度条颜色，0透显，1实显，2反色，这里都用实显
     u8g2.setDrawColor(1);
-
     // 绘制进度条
     u8g2.drawHLine(DISP_W - LIST_BAR_W, 0, LIST_BAR_W);
     u8g2.drawHLine(DISP_W - LIST_BAR_W, DISP_H - 1, LIST_BAR_W);
     u8g2.drawVLine(DISP_W - ceil((float)LIST_BAR_W / 2), 0, DISP_H);
     u8g2.drawBox(DISP_W - LIST_BAR_W, 0, LIST_BAR_W, list.bar_y);
-
     // 绘制列表文字
     if (!ui.init)
     {
@@ -524,7 +529,6 @@ void list_show(struct MENU arr[], uint8_t ui_index)
     // 绘制文字选择框，0透显，1实显，2反色，这里用反色
     u8g2.setDrawColor(2);
     u8g2.drawRBox(0, list.box_y, list.box_x, LIST_LINE_H, LIST_BOX_R);
-
     // 反转屏幕内元素颜色，白天模式遮罩，在这里屏蔽有列表参与的页面，使遮罩作用在那个页面上
     if (!ui.param[DARK_MODE])
     {
@@ -627,6 +631,17 @@ void usb_monitor_show()
             u8g2.setCursor(0, 60);
             u8g2.print("DATA");
         }
+        break;
+    case 4: // TODO 循环模式
+        break;
+    case 5: // 进入USB监视器的设置页面
+        u8g2.setFont(USB_MONITOR_UNIT_FONT);
+        u8g2.setCursor(0, 20);
+        u8g2.print("Press Btn");
+        u8g2.setCursor(0, 40);
+        u8g2.print("to Modify");
+        u8g2.setCursor(0, 60);
+        u8g2.print("Settings");
         break;
     }
 
@@ -956,6 +971,45 @@ void switch_proc()
         }
     }
 }
+
+// test
+void set_usb_monitor_param()
+{
+    usb_monitor.param[REFRESH_INTERVAL] = 10; // 刷新间隔，最终取 value*10 (ms)
+}
+
+// 电压测量设置页处理函数
+void usb_monitor_setting_proc()
+{
+    list_show(usb_monitor_setting_menu, M_USB_MONITOR_SETTING);
+    if (btn.pressed)
+    {
+        btn.pressed = false;
+        switch (btn.id)
+        {
+        case BTN_ID_CW:
+        case BTN_ID_CC:
+            list_rotate_switch();
+            break;
+        case BTN_ID_LP:
+            ui.select[ui.layer] = 0;
+        case BTN_ID_SP:
+            switch (ui.select[ui.layer])
+            {
+            case 0:
+                ui.index = M_USB_MONITOR;
+                ui.state = S_LAYER_OUT;
+                break;
+            case 1: // 调整刷新间隔
+                window_value_init("Refr Int", REFRESH_INTERVAL, &usb_monitor.param[REFRESH_INTERVAL],
+                                  100, 10, 10, usb_monitor_setting_menu, M_USB_MONITOR_SETTING);
+
+                break;
+            }
+        }
+    }
+}
+
 // 电压测量页处理函数
 void usb_monitor_proc()
 {
@@ -971,7 +1025,14 @@ void usb_monitor_proc()
             break;
 
         case BTN_ID_SP:
-            // do nothing
+            switch (ui.select[ui.layer])
+            {
+            case 5: // USB监视器的设置
+                ui.index = M_USB_MONITOR_SETTING;
+                ui.state = S_LAYER_IN;
+                break;
+            }
+
             break;
         case BTN_ID_LP:
             ui.index = M_MAIN;
@@ -1135,6 +1196,9 @@ void ui_proc()
         // case M_KPF:         kpf_proc();               break;
         case M_USB_MONITOR:
             usb_monitor_proc();
+            break;
+        case M_USB_MONITOR_SETTING:
+            usb_monitor_setting_proc();
             break;
         case M_SETTING:
             setting_proc();

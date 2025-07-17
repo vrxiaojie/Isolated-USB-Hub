@@ -51,6 +51,7 @@ enum
     M_MAIN,
     M_SWITCH,
     M_USB_MONITOR,
+    M_USB_MONITOR_SETTING,
     M_SETTING,
     M_ABOUT,
 };
@@ -75,6 +76,7 @@ extern M_SELECT main_menu[];
 extern M_SELECT main_menu_exp[];
 extern M_SELECT switch_menu[];
 extern M_SELECT usb_monitor_menu[];
+extern M_SELECT usb_monitor_setting_menu[];
 extern M_SELECT setting_menu[];
 extern M_SELECT about_menu[];
 
@@ -139,12 +141,19 @@ extern list_t list;
 #define USB_MONITOR_LIST_U_S 94                    // 列表上边距
 #define USB_MONITOR_TEXT_BG_U_S 53                 // 文字背景框上边距
 #define USB_MONITOR_TEXT_BG_H 33                   // 文字背景框高度
+#define USB_MONITOR_PARAM 10                       // USB监视器设置数量
+
+enum
+{
+    REFRESH_INTERVAL // 数据刷新间隔
+};
 
 struct usb_monitor_t
 {
     int val;
     float text_bg_l;
     float text_bg_l_trg;
+    uint8_t param[USB_MONITOR_PARAM];
 };
 extern usb_monitor_t usb_monitor;
 
@@ -214,5 +223,6 @@ void ui_init();
 void tile_param_init();
 void ui_proc();
 void oled_init();
+void set_usb_monitor_param();
 
 #endif
