@@ -45,7 +45,7 @@ M_SELECT usb_monitor_menu[]{
 
 M_SELECT usb_monitor_setting_menu[]{
     {"USB监视器设置"},
-    {"~ 数据刷新间隔"},
+    {"~ 刷新率Hz"},
 };
 
 M_SELECT setting_menu[]{
@@ -1054,7 +1054,7 @@ void switch_proc()
 // test
 void set_usb_monitor_param()
 {
-    usb_monitor.param[REFRESH_INTERVAL] = 10; // 刷新间隔，最终取 value*10 (ms)
+    usb_monitor.param[REFRESH_RATE]= 10; // 刷新率1~10Hz
 }
 
 // 电压测量设置页处理函数
@@ -1080,8 +1080,8 @@ void usb_monitor_setting_proc()
                 ui.state = S_LAYER_OUT;
                 break;
             case 1: // 调整刷新间隔
-                window_value_init("Refr Int", REFRESH_INTERVAL, &usb_monitor.param[REFRESH_INTERVAL],
-                                  100, 10, 10, usb_monitor_setting_menu, M_USB_MONITOR_SETTING);
+                window_value_init("Refresh Rate", REFRESH_RATE, &usb_monitor.param[REFRESH_RATE],
+                                  10, 1, 1, usb_monitor_setting_menu, M_USB_MONITOR_SETTING);
 
                 break;
             }

@@ -45,7 +45,7 @@ void INA226_Task(void *arg)
             // TODO:  自动轮换显示USB1~4数据
             break;
         }
-        delay(usb_monitor.param[REFRESH_INTERVAL] * 10); // 刷新间隔
+        delay(1000 / usb_monitor.param[REFRESH_RATE]); // 刷新间隔
     }
 }
 

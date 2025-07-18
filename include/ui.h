@@ -145,7 +145,7 @@ extern list_t list;
 
 enum
 {
-    REFRESH_INTERVAL // 数据刷新间隔
+    REFRESH_RATE // 数据刷新率Hz
 };
 
 struct usb_monitor_t
