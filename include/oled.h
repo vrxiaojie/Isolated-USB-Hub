@@ -2,8 +2,8 @@
 #define OLED_H_
 #include <U8g2lib.h>
 // OLED变量
-#define SDA 8
-#define SCL 18
+#define SDA 5
+#define SCL 4
 #define RST U8X8_PIN_NONE
 
 #define DISP_H 128 // 屏幕高度
