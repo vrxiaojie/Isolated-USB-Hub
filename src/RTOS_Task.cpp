@@ -2,6 +2,8 @@
 #include "ina226_data.h"
 #include "knob.h"
 #include "ui.h"
+#include "switch.h"
+
 TaskHandle_t INA226_Task_Handle = NULL;
 void INA226_Task(void *arg)
 {
@@ -81,5 +83,45 @@ void btn_scan(void *args)
         }
 
         delay(5);
+    }
+}
+
+TaskHandle_t OVC_detect_Task_Handler = NULL;
+// 检测USB端口过流任务
+void OVC_detect_Task(void *args)
+{
+    pinMode(OVC1, INPUT_PULLUP);
+    pinMode(OVC2, INPUT_PULLUP);
+    pinMode(OVC3, INPUT_PULLUP);
+    pinMode(OVC4, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(OVC1), over_current_ISR, FALLING);
+    attachInterrupt(digitalPinToInterrupt(OVC2), over_current_ISR, FALLING);
+    attachInterrupt(digitalPinToInterrupt(OVC3), over_current_ISR, FALLING);
+    attachInterrupt(digitalPinToInterrupt(OVC4), over_current_ISR, FALLING);
+
+    while (1)
+    {
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        if (digitalRead(OVC1) == LOW)
+        {
+            window_msg_init("USB1", "Over Current!");
+            Serial.println("USB1过流");
+        }
+        if (digitalRead(OVC2) == LOW)
+        {
+            window_msg_init("USB2", "Over Current!");
+            Serial.println("USB2过流");
+        }
+        if (digitalRead(OVC3) == LOW)
+        {
+            window_msg_init("USB3", "Over Current!");
+            Serial.println("USB3过流");
+        }
+        if (digitalRead(OVC4) == LOW)
+        {
+            window_msg_init("USB4", "Over Current!");
+            Serial.println("USB4过流");
+        }
+        delay(100);
     }
 }
