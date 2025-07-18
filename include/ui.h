@@ -226,6 +226,13 @@ struct spot_t
 
 extern spot_t spot;
 
+#define USB_COUNT 4 // USB数量
+struct usb_switch_t
+{
+    uint8_t switches[USB_COUNT] = {1, 1, 1, 1};
+};
+extern usb_switch_t usb_switch;
+
 void ui_param_init();
 void ui_init();
 void tile_param_init();

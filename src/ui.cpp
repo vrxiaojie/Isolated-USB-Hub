@@ -6,6 +6,7 @@
 #include "ina226_data.h"
 #include "pic.h"
 #include "oled.h"
+#include "switch.h"
 
 /************************************* 定义内容 *************************************/
 
@@ -14,7 +15,7 @@
 M_SELECT main_menu[]{
     {"Sleep"},
     {"Switch"},
-    {"USB"},
+    {"Monitor"},
     {"Setting"},
 };
 // 小标题
@@ -26,17 +27,11 @@ M_SELECT main_menu_exp[]{
 };
 
 M_SELECT switch_menu[]{
-    {"[ Editor ]"},
-    {"- Function 0"},
-    {"- Function 1"},
-    {"- Function 2"},
-    {"- Function 3"},
-    {"- Function 4"},
-    {"- Function 5"},
-    {"- Function 6"},
-    {"- Function 7"},
-    {"- Function 8"},
-    {"- Function 9"},
+    {"[ USB开关 ]"},
+    {"+ USB1"},
+    {"+ USB2"},
+    {"+ USB3"},
+    {"+ USB4"},
 };
 
 M_SELECT usb_monitor_menu[]{
@@ -105,6 +100,8 @@ check_box_t check_box;
 win_t win;
 
 spot_t spot;
+
+usb_switch_t usb_switch;
 
 /************************************ 初始化函数 ***********************************/
 
@@ -242,6 +239,12 @@ void sleep_param_init()
     }
 }
 
+// 开关页初始化
+void usb_switch_param_init()
+{
+    check_box_m_init(usb_switch.switches);
+}
+
 // USB监视器测量页初始化
 void usb_monitor_param_init()
 {
@@ -291,7 +294,10 @@ void layer_init_in()
     {
     case M_MAIN:
         tile_param_init();
-        break; // 睡眠进入主菜单，动画初始化
+        break;     // 睡眠进入主菜单，动画初始化
+    case M_SWITCH: // 主菜单进入开关页，多选框初始化
+        usb_switch_param_init();
+        break;
     case M_USB_MONITOR:
         usb_monitor_param_init();
         break; // 主菜单进入电压测量页，动画初始化
@@ -551,6 +557,7 @@ void list_show(struct MENU arr[], uint8_t ui_index)
         {
         case M_WINDOW:
         case M_USB_MONITOR:
+        case M_SWITCH:
             u8g2.drawBox(0, 0, DISP_W, DISP_H);
         }
     }
@@ -1021,6 +1028,22 @@ void switch_proc()
             case 0:
                 ui.index = M_MAIN;
                 ui.state = S_LAYER_OUT;
+                break;
+            case 1:
+                check_box_m_select(SW1);
+                switch_ctrl(SW1, check_box.m[SW1]);
+                break;
+            case 2:
+                check_box_m_select(SW2);
+                switch_ctrl(SW2, check_box.m[SW2]);
+                break;
+            case 3:
+                check_box_m_select(SW3);
+                switch_ctrl(SW3, check_box.m[SW3]);
+                break;
+            case 4:
+                check_box_m_select(SW4);
+                switch_ctrl(SW4, check_box.m[SW4]);
                 break;
                 // case 11:  ui.index = M_KNOB;  ui.state = S_LAYER_IN;  break;
             }
