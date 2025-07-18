@@ -182,6 +182,9 @@ extern check_box_t check_box;
 #define WIN_BAR_H 7                        // 弹窗进度条高度
 #define WIN_Y -WIN_H - 2                   // 弹窗竖直方向出场起始位置
 #define WIN_Y_TRG -WIN_H - 2               // 弹窗竖直方向退场终止位置
+#define WIN_MSG_H 48                       // 消息弹窗高度
+#define WIN_MSG_W 120                      // 消息弹窗宽度
+
 struct win_t
 {
     // uint8_t
@@ -193,13 +196,18 @@ struct win_t
     MENU *bg;
     uint8_t index;
     char title[20];
+    char sub_title[20];
     uint8_t select;
     uint8_t l = (DISP_W - WIN_W) / 2;
     uint8_t u = (DISP_H - WIN_H) / 2;
+    uint8_t l_msg = (DISP_W - WIN_MSG_W) / 2;
+    uint8_t u_msg = (DISP_H - WIN_MSG_H) / 2;
     float bar;
     float bar_trg;
     float y;
     float y_trg;
+    float y_msg_trg;
+    bool is_msg;
 };
 extern win_t win;
 
@@ -224,5 +232,7 @@ void tile_param_init();
 void ui_proc();
 void oled_init();
 void set_usb_monitor_param();
+void window_msg_init(char title[], char sub_title[]);
+void window_value_init(char title[], uint8_t select, uint8_t *value, uint8_t max, uint8_t min, uint8_t step, MENU *bg, uint8_t index);
 
 #endif

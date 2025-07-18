@@ -147,6 +147,7 @@ void check_box_s_select(uint8_t val, uint8_t pos)
 // 弹窗数值初始化
 void window_value_init(char title[], uint8_t select, uint8_t *value, uint8_t max, uint8_t min, uint8_t step, MENU *bg, uint8_t index)
 {
+    win.is_msg = false;
     strcpy(win.title, title);
     win.select = select;
     win.value = value;
@@ -155,6 +156,18 @@ void window_value_init(char title[], uint8_t select, uint8_t *value, uint8_t max
     win.step = step;
     win.bg = bg;
     win.index = index;
+    ui.index = M_WINDOW;
+    ui.state = S_WINDOW;
+}
+
+// 弹窗消息初始化
+void window_msg_init(char title[], char sub_title[])
+{
+    win.is_msg = true;
+    strcpy(win.title, title);
+    strcpy(win.sub_title, sub_title);
+    if (ui.index != M_WINDOW)
+        win.index = ui.index;
     ui.index = M_WINDOW;
     ui.state = S_WINDOW;
 }
@@ -259,6 +272,7 @@ void window_param_init()
     win.bar = 0;
     win.y = WIN_Y;
     win.y_trg = win.u;
+    win.y_msg_trg = win.u_msg;
     ui.state = S_NONE;
 }
 
@@ -851,28 +865,70 @@ void list_rotate_switch()
 // 弹窗通用处理函数
 void window_proc()
 {
-    window_show();
-    if (win.y == WIN_Y_TRG)
-        ui.index = win.index;
-    if (btn.pressed && win.y == win.y_trg && win.y != WIN_Y_TRG)
+    if (win.is_msg)
     {
-        btn.pressed = false;
-        switch (btn.id)
+        // 更新动画目标值
+        u8g2.setFont(WIN_FONT);
+        // 计算动画过渡值
+        animation(&win.y, &win.y_msg_trg, WIN_ANI);
+        // 绘制窗口
+        u8g2.setDrawColor(0);
+        u8g2.drawRBox(win.l_msg, (int16_t)win.y, WIN_MSG_W, WIN_MSG_H, 2); // 绘制外框背景
+        u8g2.setDrawColor(1);
+        u8g2.drawRFrame(win.l_msg, (int16_t)win.y, WIN_MSG_W, WIN_MSG_H, 2); // 绘制外框描边
+        // 绘制标题
+        u8g2.setCursor(win.l_msg + 5, (int16_t)win.y + 14);
+        u8g2.print(win.title);
+        // 绘制小标题
+        u8g2.setCursor(win.l_msg + 5, (int16_t)win.y + 26);
+        u8g2.print(win.sub_title);
+        // 绘制OK按钮
+        u8g2.setCursor(WIN_MSG_W / 2 - 9, (int16_t)win.y + 42);
+        u8g2.print("OK");
+        u8g2.setDrawColor(2);
+        u8g2.drawRBox(WIN_MSG_W / 2 - 9 - 4, (int16_t)win.y + 30, 2 * 9 + 6, 14, 0.5f);
+
+        if (btn.pressed && win.y == win.y_msg_trg && win.y != WIN_Y_TRG)
         {
-        case BTN_ID_CW:
-            if (*win.value < win.max)
-                *win.value += win.step;
-            eeprom.change = true;
-            break;
-        case BTN_ID_CC:
-            if (*win.value > win.min)
-                *win.value -= win.step;
-            eeprom.change = true;
-            break;
-        case BTN_ID_SP:
-        case BTN_ID_LP:
-            win.y_trg = WIN_Y_TRG;
-            break;
+            btn.pressed = false;
+            // 返回上一级
+            switch (btn.id)
+            {
+            case BTN_ID_SP:
+            case BTN_ID_LP:
+                ui.index = win.index;
+                // 对于在主菜单的弹窗，手动播放磁贴动画
+                if (ui.index == M_MAIN)
+                    tile_param_init();
+                break;
+            }
+        }
+    }
+    else
+    {
+        window_show();
+        if (win.y == WIN_Y_TRG)
+            ui.index = win.index;
+        if (btn.pressed && win.y == win.y_trg && win.y != WIN_Y_TRG)
+        {
+            btn.pressed = false;
+            switch (btn.id)
+            {
+            case BTN_ID_CW:
+                if (*win.value < win.max)
+                    *win.value += win.step;
+                eeprom.change = true;
+                break;
+            case BTN_ID_CC:
+                if (*win.value > win.min)
+                    *win.value -= win.step;
+                eeprom.change = true;
+                break;
+            case BTN_ID_SP:
+            case BTN_ID_LP:
+                win.y_trg = WIN_Y_TRG;
+                break;
+            }
         }
     }
 }
