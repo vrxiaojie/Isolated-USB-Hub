@@ -69,13 +69,14 @@ M_SELECT setting_menu[]{
 };
 
 M_SELECT about_menu[]{
+    // TODO:修复第一行标题栏显示%3.1f
     {"[ ESP32-HUB ]"},
     {"- 作者VRxiaojie"},
     {"- 版本:v1.0"},
     {"- 主控:ESP32S3"},
     {"- SRAM: 8MB"},
     {"- Flash: 8MB"},
-    {"- UI修改自WonoUI"},
+    {"- UI修改自WouoUI"},
     {"- 感谢原作者RQNG"},
 };
 
