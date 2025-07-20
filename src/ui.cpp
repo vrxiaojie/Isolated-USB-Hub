@@ -65,7 +65,6 @@ M_SELECT setting_menu[]{
     {"+ 磁贴循环"},
     {"+ 列表循环"},
     {"+ 弹窗背景虚化"},
-    {"+ 深色模式"},
     {"- [ 关于 ]"},
 };
 
@@ -189,7 +188,6 @@ void ui_param_init()
     ui.param[LIST_LOOP] = 0;  // 菜单列表循环模式开关
     ui.param[WIN_BOK] = 0;    // 弹窗背景虚化开关
     ui.param[KNOB_DIR] = 0;   // 旋钮方向切换开关
-    ui.param[DARK_MODE] = 1;  // 黑暗模式开关
 }
 
 // 列表类页面列表行数初始化，必须初始化的参数
@@ -347,65 +345,32 @@ void animation(float *a, float *a_trg, uint8_t n)
 void fade()
 {
     delay(ui.param[FADE_ANI]);
-    if (ui.param[DARK_MODE])
+    switch (ui.fade)
     {
-        switch (ui.fade)
-        {
-        case 1:
-            for (uint16_t i = 0; i < buf_len; ++i)
-                if (i % 2 != 0)
-                    buf_ptr[i] = buf_ptr[i] & 0xAA;
-            break;
-        case 2:
-            for (uint16_t i = 0; i < buf_len; ++i)
-                if (i % 2 != 0)
-                    buf_ptr[i] = buf_ptr[i] & 0x00;
-            break;
-        case 3:
-            for (uint16_t i = 0; i < buf_len; ++i)
-                if (i % 2 == 0)
-                    buf_ptr[i] = buf_ptr[i] & 0x55;
-            break;
-        case 4:
-            for (uint16_t i = 0; i < buf_len; ++i)
-                if (i % 2 == 0)
-                    buf_ptr[i] = buf_ptr[i] & 0x00;
-            break;
-        default:
-            ui.state = S_NONE;
-            ui.fade = 0;
-            break;
-        }
-    }
-    else
-    {
-        switch (ui.fade)
-        {
-        case 1:
-            for (uint16_t i = 0; i < buf_len; ++i)
-                if (i % 2 != 0)
-                    buf_ptr[i] = buf_ptr[i] | 0xAA;
-            break;
-        case 2:
-            for (uint16_t i = 0; i < buf_len; ++i)
-                if (i % 2 != 0)
-                    buf_ptr[i] = buf_ptr[i] | 0x00;
-            break;
-        case 3:
-            for (uint16_t i = 0; i < buf_len; ++i)
-                if (i % 2 == 0)
-                    buf_ptr[i] = buf_ptr[i] | 0x55;
-            break;
-        case 4:
-            for (uint16_t i = 0; i < buf_len; ++i)
-                if (i % 2 == 0)
-                    buf_ptr[i] = buf_ptr[i] | 0x00;
-            break;
-        default:
-            ui.state = S_NONE;
-            ui.fade = 0;
-            break;
-        }
+    case 1:
+        for (uint16_t i = 0; i < buf_len; ++i)
+            if (i % 2 != 0)
+                buf_ptr[i] = buf_ptr[i] & 0xAA;
+        break;
+    case 2:
+        for (uint16_t i = 0; i < buf_len; ++i)
+            if (i % 2 != 0)
+                buf_ptr[i] = buf_ptr[i] & 0x00;
+        break;
+    case 3:
+        for (uint16_t i = 0; i < buf_len; ++i)
+            if (i % 2 == 0)
+                buf_ptr[i] = buf_ptr[i] & 0x55;
+        break;
+    case 4:
+        for (uint16_t i = 0; i < buf_len; ++i)
+            if (i % 2 == 0)
+                buf_ptr[i] = buf_ptr[i] & 0x00;
+        break;
+    default:
+        ui.state = S_NONE;
+        ui.fade = 0;
+        break;
     }
     ui.fade++;
 }
@@ -456,11 +421,6 @@ void tile_show(struct MENU arr_1[], struct MENU arr_2[], const uint8_t icon_pic[
     else
         for (uint8_t i = 0; i < ui.num[ui.index]; ++i)
             u8g2.drawXBMP((DISP_W - TILE_ICON_W) / 2 + (int16_t)tile.icon_x + i * TILE_ICON_S, 0, TILE_ICON_W, TILE_ICON_H, icon_pic[i]);
-
-    // 反转屏幕内元素颜色，白天模式遮罩
-    u8g2.setDrawColor(2);
-    if (!ui.param[DARK_MODE])
-        u8g2.drawBox(0, 0, DISP_W, DISP_H);
 }
 
 /*************** 根据列表每行开头符号，判断每行尾部是否绘制以及绘制什么内容 *************/
@@ -549,18 +509,6 @@ void list_show(struct MENU arr[], uint8_t ui_index)
     // 绘制文字选择框，0透显，1实显，2反色，这里用反色
     u8g2.setDrawColor(2);
     u8g2.drawRBox(0, list.box_y, list.box_x, LIST_LINE_H, LIST_BOX_R);
-    // 反转屏幕内元素颜色，白天模式遮罩，在这里屏蔽有列表参与的页面，使遮罩作用在那个页面上
-    if (!ui.param[DARK_MODE])
-    {
-        u8g2.drawBox(0, 0, DISP_W, DISP_H);
-        switch (ui.index)
-        {
-        case M_WINDOW:
-        case M_USB_MONITOR:
-        case M_SWITCH:
-            u8g2.drawBox(0, 0, DISP_W, DISP_H);
-        }
-    }
 }
 
 // 电压页面显示函数
@@ -669,10 +617,6 @@ void usb_monitor_show()
     // 绘制列表选择框
     u8g2.setDrawColor(2);
     u8g2.drawRBox(list.box_y, USB_MONITOR_LIST_U_S - LIST_TEXT_S, LIST_LINE_H, list.box_x, LIST_BOX_R); // 列表选择框
-
-    // 反转屏幕内元素颜色，白天模式遮罩
-    if (!ui.param[DARK_MODE])
-        u8g2.drawBox(0, 0, DISP_W, DISP_H);
 }
 
 // 弹窗通用显示函数
@@ -707,11 +651,6 @@ void window_show()
     // 需要在窗口修改参数时立即见效的函数
     if (!strcmp(win.title, "Disp Bri"))
         u8g2.setContrast(ui.param[DISP_BRI]);
-
-    // 反转屏幕内元素颜色，白天模式遮罩
-    u8g2.setDrawColor(2);
-    if (!ui.param[DARK_MODE])
-        u8g2.drawBox(0, 0, DISP_W, DISP_H);
 }
 
 /************************************* 处理函数 *************************************/
@@ -1054,7 +993,7 @@ void switch_proc()
 // test
 void set_usb_monitor_param()
 {
-    usb_monitor.param[REFRESH_RATE]= 10; // 刷新率1~10Hz
+    usb_monitor.param[REFRESH_RATE] = 10; // 刷新率1~10Hz
 }
 
 // 电压测量设置页处理函数
@@ -1191,15 +1130,9 @@ void setting_proc()
             case 14:
                 check_box_m_select(WIN_BOK);
                 break;
-            case 15:
-                check_box_m_select(KNOB_DIR);
-                break;
-            case 16:
-                check_box_m_select(DARK_MODE);
-                break;
 
             // 关于本机
-            case 17:
+            case 15:
                 ui.index = M_ABOUT;
                 ui.state = S_LAYER_IN;
                 break;

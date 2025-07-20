@@ -6,7 +6,7 @@
 // UI变量
 #define UI_DEPTH 20  // 最深层级数
 #define UI_MNUMB 100 // 菜单数量
-#define UI_PARAM 16  // 参数数量
+#define UI_PARAM 14  // 参数数量
 enum
 {
     DISP_BRI,  // 屏幕亮度
