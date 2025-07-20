@@ -7,7 +7,7 @@
 eeprom_t eeprom;
 uint8_t eeprom_check_param[EEPROM_CHECK] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k'};
 
-// EEPROM写数据，回到睡眠时执行一遍
+// EEPROM写数据
 void eeprom_write_all_data()
 {
     eeprom.address = 0;
@@ -16,6 +16,7 @@ void eeprom_write_all_data()
     eeprom.address += EEPROM_CHECK;
     for (uint8_t i = 0; i < UI_PARAM; ++i)
         EEPROM.write(eeprom.address + i, ui.param[i]);
+    EEPROM.commit();
     eeprom.address += UI_PARAM;
 }
 
@@ -33,6 +34,7 @@ void eeprom_init()
 {
     eeprom.check = 0;
     eeprom.address = 0;
+    EEPROM.begin(EEPROM_CHECK + UI_PARAM);
     for (uint8_t i = 0; i < EEPROM_CHECK; ++i)
         if (EEPROM.read(eeprom.address + i) != eeprom_check_param[i])
             eeprom.check++;

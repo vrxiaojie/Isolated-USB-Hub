@@ -16,7 +16,6 @@ void setup()
   Wire.begin(SDA, SCL);
 
   eeprom_init();
-  ui_param_init();
   set_usb_monitor_param();
   ui_init();
   oled_init();
