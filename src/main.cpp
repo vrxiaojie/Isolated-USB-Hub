@@ -8,11 +8,13 @@
 #include "oled.h"
 #include "e2prom.h"
 #include "switch.h"
+#include "ina226_data.h"
 
 void setup()
 {
   Serial.begin(115200);
   Wire.begin(SDA, SCL);
+
   eeprom_init();
   ui_param_init();
   set_usb_monitor_param();

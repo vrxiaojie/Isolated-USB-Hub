@@ -2,6 +2,9 @@
 #define INA226_DATA_H_
 #include <INA226.h>
 
+#define SDA 5
+#define SCL 4
+
 typedef struct INA226_DATA
 {
     float busVoltage;
