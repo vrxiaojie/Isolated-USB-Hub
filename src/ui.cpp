@@ -233,7 +233,7 @@ void sleep_param_init()
     ui.sleep = true;
     if (eeprom.change)
     {
-        eeprom_write_all_data();
+        eeprom_write_modified_data();
         eeprom.change = false;
     }
 }
@@ -1076,6 +1076,12 @@ void setting_proc()
             break;
         case BTN_ID_LP:
             ui.select[ui.layer] = 0;
+            // 退出菜单时保存
+            if (eeprom.change == true)
+            {
+                eeprom.change = false;
+                eeprom_write_modified_data();
+            }
         case BTN_ID_SP:
             switch (ui.select[ui.layer])
             {

@@ -12,6 +12,7 @@ struct eeprom_t
 };
 extern eeprom_t eeprom;
 
+void eeprom_write_modified_data();
 void eeprom_write_all_data();
 void eeprom_read_all_data();
 void eeprom_init();

@@ -7,13 +7,25 @@
 eeprom_t eeprom;
 uint8_t eeprom_check_param[EEPROM_CHECK] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k'};
 
-// EEPROM写数据
+// EEPROM写被修改的数据
+void eeprom_write_modified_data()
+{
+    eeprom.address = EEPROM_CHECK;
+    for (uint8_t i = 0; i < UI_PARAM; ++i)
+    {
+        if (EEPROM.read(eeprom.address + i) != ui.param[i])
+        {
+            EEPROM.write(eeprom.address + i, ui.param[i]);
+        }
+    }
+    EEPROM.commit();
+    eeprom.address += UI_PARAM;
+}
+
+// EEPROM写全部数据
 void eeprom_write_all_data()
 {
-    eeprom.address = 0;
-    for (uint8_t i = 0; i < EEPROM_CHECK; ++i)
-        EEPROM.write(eeprom.address + i, eeprom_check_param[i]);
-    eeprom.address += EEPROM_CHECK;
+    eeprom.address = EEPROM_CHECK;
     for (uint8_t i = 0; i < UI_PARAM; ++i)
         EEPROM.write(eeprom.address + i, ui.param[i]);
     EEPROM.commit();
@@ -40,6 +52,13 @@ void eeprom_init()
             eeprom.check++;
     if (eeprom.check <= 1)
         eeprom_read_all_data(); // 允许一位误码
+    // 若出现1位以上误码或是未初始化过的，则进行初始化
     else
+    {
+        eeprom.address = 0;
+        for (uint8_t i = 0; i < EEPROM_CHECK; ++i)
+            EEPROM.write(eeprom.address + i, eeprom_check_param[i]);
         ui_param_init();
+        eeprom_write_all_data();
+    }
 }
