@@ -9,6 +9,7 @@
 #include "e2prom.h"
 #include "switch.h"
 #include "ina226_data.h"
+#include "Wifi_Config.h"
 
 void setup()
 {

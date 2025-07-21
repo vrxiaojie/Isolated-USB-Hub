@@ -52,6 +52,7 @@ enum
     M_SWITCH,
     M_USB_MONITOR,
     M_USB_MONITOR_SETTING,
+    M_WIFI,
     M_SETTING,
     M_ABOUT,
 };

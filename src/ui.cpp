@@ -7,6 +7,7 @@
 #include "pic.h"
 #include "oled.h"
 #include "switch.h"
+#include "Wifi_Config.h"
 
 /************************************* 定义内容 *************************************/
 
@@ -16,6 +17,7 @@ M_SELECT main_menu[]{
     {"Sleep"},
     {"Switch"},
     {"Monitor"},
+    {"WiFi"},
     {"Setting"},
 };
 // 小标题
@@ -23,6 +25,7 @@ M_SELECT main_menu_exp[]{
     {"[ 进入睡眠模式 ]"},
     {"[ 控制USB的开关 ]"},
     {"[ 监测电压 电流 功率 ]"},
+    {"[ 查看/连接WiFi ]"},
     {"[ 修改设置 ]"},
 };
 
@@ -278,6 +281,18 @@ void window_param_init()
     ui.state = S_NONE;
 }
 
+// WIFI配网显示
+void configWifi_init()
+{
+    wifi.connectfailed = false;
+    initSoftAP();
+    initDNS();
+    initWebServer();
+    Serial.println("scan start");
+    Serial.println("--------->");
+    WiFi.scanNetworks(true);
+}
+
 // 进入更深层级时的初始化
 void layer_init_in()
 {
@@ -300,6 +315,11 @@ void layer_init_in()
     case M_USB_MONITOR:
         usb_monitor_param_init();
         break; // 主菜单进入电压测量页，动画初始化
+    case M_WIFI:
+        if (WiFi.status() != WL_CONNECTED)
+            configWifi_init();
+
+        break;
     case M_SETTING:
         setting_param_init();
         break; // 主菜单进入设置页，单选框初始化
@@ -988,6 +1008,10 @@ void main_proc()
                 ui.state = S_LAYER_IN;
                 break;
             case 3:
+                ui.index = M_WIFI;
+                ui.state = S_LAYER_IN;
+                break;
+            case 4:
                 ui.index = M_SETTING;
                 ui.state = S_LAYER_IN;
                 break;
@@ -1231,6 +1255,106 @@ void about_proc()
     }
 }
 
+void configWifi_proc()
+{
+    if (btn.pressed)
+    {
+        btn.pressed = false;
+        switch (btn.id)
+        {
+        case BTN_ID_LP:
+            ui.select[ui.layer] = 0;
+        case BTN_ID_SP:
+            switch (ui.select[ui.layer])
+            {
+            case 0:
+                ui.index = M_MAIN;
+                ui.state = S_LAYER_OUT;
+                WiFi.scanDelete();
+                WiFi.mode(WIFI_OFF); // 关闭WiFi
+                break;
+            }
+            break;
+        }
+    }
+
+    int16_t WiFi_scan_status = WiFi.scanComplete();
+    if (WiFi_scan_status >= 0) // WiFi扫描完成 WiFi_status为获取到的网络数量
+    {
+        scanWiFi(WiFi_scan_status);
+        while (1)
+        {
+            uint8_t WiFi_status = WiFi.status();
+            checkDNS_HTTP(); // 检测客户端DNS&HTTP请求，也就是检查配网页面那部分
+            if (btn.pressed)
+            {
+                btn.pressed = false;
+                switch (btn.id)
+                {
+                case BTN_ID_LP:
+                    ui.select[ui.layer] = 0;
+                case BTN_ID_SP:
+                    switch (ui.select[ui.layer])
+                    {
+                    case 0:
+                        ui.index = M_MAIN;
+                        ui.state = S_LAYER_OUT;
+                        WiFi.scanDelete();
+                        WiFi.mode(WIFI_OFF); // 关闭WiFi
+                        return;
+                        break;
+                    }
+                    break;
+                }
+            }
+            if (WiFi_status == WL_CONNECTED) // 检测到连接成功后 显示网络信息
+            {
+                u8g2.clearBuffer();
+                u8g2.setDrawColor(1);
+                u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
+                u8g2.drawUTF8(0, 16, "连接成功!");
+                u8g2.drawUTF8(0, 32, WiFi.SSID().c_str()); // WiFi SSID
+                u8g2.setCursor(0, 48);
+                u8g2.printf("ip : %s", WiFi.localIP().toString()); // IP
+                u8g2.setCursor(0, 64);
+                u8g2.printf("DNS : %s", WiFi.dnsIP().toString()); // DNS
+                u8g2.drawUTF8(0, 80, "长按返回主菜单");
+                u8g2.sendBuffer();
+            }
+            else if (wifi.connectfailed == true) // 连接失败时显示提示信息
+            {
+                u8g2.clearBuffer();
+                u8g2.drawUTF8(0, 16, "WiFi连接失败!");
+                u8g2.drawUTF8(0, 32, "请稍后重新进入该页面!");
+                u8g2.sendBuffer();
+                delay(1500);
+                ui.index = M_MAIN; // 退出配网页面
+                ui.state = S_LAYER_OUT;
+                WiFi.scanDelete();
+                WiFi.mode(WIFI_OFF); // 关闭WiFi
+                return;
+            }
+            else // 若还未连接 则显示提示信息
+            {
+                u8g2.drawUTF8(0, 16, "[WiFi配网]长按退出");
+                u8g2.drawUTF8(0, 32, "手机连到热点:Hub-WiFi");
+                u8g2.drawUTF8(0, 48, "进入网页:192.168.4.1");
+                u8g2.drawUTF8(0, 64, "根据提示操作");
+                u8g2.sendBuffer();
+            }
+        }
+    }
+    else if (WiFi_scan_status == WIFI_SCAN_RUNNING) // WiFi状态为扫描中
+    {
+        u8g2.setDrawColor(1);
+        u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
+        u8g2.drawUTF8(0, 16, "[配网]");
+        u8g2.drawUTF8(0, 32, "扫描WIFI中,请稍候...");
+        u8g2.drawUTF8(0, 48, "长按退出");
+        u8g2.sendBuffer();
+    }
+}
+
 void ui_proc()
 {
     u8g2.sendBuffer();
@@ -1273,6 +1397,9 @@ void ui_proc()
             break;
         case M_USB_MONITOR_SETTING:
             usb_monitor_setting_proc();
+            break;
+        case M_WIFI:
+            configWifi_proc();
             break;
         case M_SETTING:
             setting_proc();
