@@ -39,7 +39,7 @@ M_SELECT usb_monitor_menu[]{
     {"USB2"},
     {"USB3"},
     {"USB4"},
-    {"循环"},
+    {"总计"},
     {"设置"},
 };
 
@@ -551,6 +551,9 @@ void usb_monitor_show()
     // 根据当前选择的USB端口，绘制当前USB的电压、电流、功率
     uint32_t idx = ui.select[ui.layer];
     u8g2.setFontDirection(0);
+    float maxBusVolt = 0;
+    float totalCurrent_mA = 0;
+    float totalPower_mW = 0;
     switch (idx)
     {
     // 根据当前选择的USB端口(1~4)，通知INA226任务去获取对应通道的数据
@@ -602,7 +605,59 @@ void usb_monitor_show()
             u8g2.print("DATA");
         }
         break;
-    case 4: // TODO 循环模式
+    case 4: // 总计功能
+        for (uint8_t i = 0; i < 4; i++)
+        {
+            if (ina226_data[i].init)
+            {
+                xTaskNotify(INA226_Task_Handle, i, eSetValueWithOverwrite);
+                if (ina226_data[i].busVoltage > maxBusVolt)
+                    maxBusVolt = ina226_data[i].busVoltage;
+                totalCurrent_mA += ina226_data[i].current_mA;
+                totalPower_mW += ina226_data[i].busVoltage * ina226_data[i].current_mA;
+            }
+        }
+
+        u8g2.setFont(USB_MONITOR_FONT);
+        u8g2.setCursor(0, 28);
+        u8g2.printf("%1.2f", maxBusVolt);
+        u8g2.setFont(USB_MONITOR_UNIT_FONT);
+        u8g2.setCursor(101, 23);
+        u8g2.print("V");
+
+        u8g2.setFont(USB_MONITOR_FONT);
+        u8g2.setCursor(0, 56);
+        if (totalCurrent_mA < 1000)
+        {
+            u8g2.printf("%3.1f", totalCurrent_mA);
+            u8g2.setFont(USB_MONITOR_UNIT_FONT);
+            u8g2.setCursor(92, 51);
+            u8g2.print("mA");
+        }
+        else
+        {
+            u8g2.printf("%1.3f", totalCurrent_mA / 1000.0);
+            u8g2.setFont(USB_MONITOR_UNIT_FONT);
+            u8g2.setCursor(101, 51);
+            u8g2.print("A");
+        }
+
+        u8g2.setFont(USB_MONITOR_FONT);
+        u8g2.setCursor(0, 84);
+        if (totalPower_mW < 1000)
+        {
+            u8g2.printf("%3.1f", totalPower_mW);
+            u8g2.setFont(USB_MONITOR_UNIT_FONT);
+            u8g2.setCursor(92, 79);
+            u8g2.print("mW");
+        }
+        else
+        {
+            u8g2.printf("%2.2f", totalPower_mW / 1000.0);
+            u8g2.setFont(USB_MONITOR_UNIT_FONT);
+            u8g2.setCursor(101, 79);
+            u8g2.print("W");
+        }
         break;
     case 5: // 进入USB监视器的设置页面
         u8g2.setFont(USB_MONITOR_UNIT_FONT);
