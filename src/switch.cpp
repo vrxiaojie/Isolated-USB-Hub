@@ -21,6 +21,7 @@ void switch_pin_init()
 
 void switch_ctrl(uint8_t n, uint8_t status)
 {
+    usb_switch.switches[n] = status;
     switch (n)
     {
     case SW1:

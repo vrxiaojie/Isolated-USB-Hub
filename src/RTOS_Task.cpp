@@ -125,3 +125,32 @@ void OVC_detect_Task(void *args)
         delay(100);
     }
 }
+
+#include "WiFi.h"
+#include "ws.h"
+void WebSocket_Task(void *args)
+{
+    int voltage, current, power = 0;
+    WiFi.begin();
+    webSocket.begin();
+    webSocket.onEvent(webSocketEvent); // 设置 WebSocket 事件回调
+    while (1)
+    {
+        if (WiFi.status() == WL_CONNECTED)
+        {
+            webSocket.loop(); // 处理 WebSocket 事件
+            for (uint8_t i = 0; i < 4; i++)
+            {
+                xTaskNotify(INA226_Task_Handle, i, eSetValueWithOverwrite);
+                // 构造 JSON 数据包
+                String jsonData = "{\"usb_port\": " + String(i + 1) + ", \"voltage\": " + String(ina226_data[i].busVoltage) + ", \"current\": " + String(ina226_data[i].current_mA) + ", \"power\": " + String(ina226_data[i].power_mW) + ", \"status\": " + String(usb_switch.switches[i] ? "true" : "false") + "}";
+                webSocket.broadcastTXT(jsonData); // 向所有客户端广播数据
+            }
+            delay(500); // 每1s更新一次数据
+        }
+        else
+        {
+            delay(2000);
+        }
+    }
+}
