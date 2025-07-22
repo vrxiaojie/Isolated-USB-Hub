@@ -16,7 +16,7 @@ void setup()
   Serial.begin(115200);
   Wire.begin(SDA, SCL);
 
-  eeprom_init();
+  EEPROM_read_ui_setting();
   set_usb_monitor_param();
   ui_init();
   oled_init();

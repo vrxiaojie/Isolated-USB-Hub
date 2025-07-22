@@ -69,6 +69,7 @@ M_SELECT setting_menu[]{
     {"+ 列表循环"},
     {"+ 弹窗背景虚化"},
     {"- [ 关于 ]"},
+    {"! 重置UI设置"},
 };
 
 M_SELECT about_menu[]{
@@ -244,7 +245,7 @@ void sleep_param_init()
     ui.sleep = true;
     if (eeprom.change)
     {
-        eeprom_write_modified_data();
+        EEPROM_write_ui_setting(true);
         eeprom.change = false;
     }
 }
@@ -1197,7 +1198,7 @@ void setting_proc()
             if (eeprom.change == true)
             {
                 eeprom.change = false;
-                eeprom_write_modified_data();
+                EEPROM_write_ui_setting(true);
             }
         case BTN_ID_SP:
             switch (ui.select[ui.layer])
@@ -1259,6 +1260,12 @@ void setting_proc()
             case 15:
                 ui.index = M_ABOUT;
                 ui.state = S_LAYER_IN;
+                break;
+                // 重置UI设置
+            case 16:
+                ui_param_init();
+                EEPROM_write_ui_setting(false); // 初始化所有UI设置
+                window_msg_init("UI设置", "重置成功!");
                 break;
             }
         }

@@ -2,7 +2,6 @@
 #define E2PROM_H_
 #include <Arduino.h>
 // EEPROM变量
-#define EEPROM_CHECK 11
 struct eeprom_t
 {
     bool init;
@@ -12,8 +11,10 @@ struct eeprom_t
 };
 extern eeprom_t eeprom;
 
-void eeprom_write_modified_data();
-void eeprom_write_all_data();
-void eeprom_read_all_data();
-void eeprom_init();
+void EEPROM_write_ui_setting(bool check);
+void EEPROM_read_ui_setting();
+void EEPROM_write_single_data(const char *part_name, const char *name, uint32_t value);
+uint32_t EEPROM_read_single_data(const char *part_name, const char *name);
+void EEPROM_clear_namespace(const char *ns);
+
 #endif
