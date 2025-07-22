@@ -179,15 +179,16 @@ struct check_box_t
 extern check_box_t check_box;
 
 // 弹窗变量
-#define WIN_FONT u8g2_font_HelvetiPixel_tr // 弹窗字体
-#define WIN_H 32                           // 弹窗高度
-#define WIN_W 102                          // 弹窗宽度
-#define WIN_BAR_W 92                       // 弹窗进度条宽度
-#define WIN_BAR_H 7                        // 弹窗进度条高度
-#define WIN_Y -WIN_H - 2                   // 弹窗竖直方向出场起始位置
-#define WIN_Y_TRG -WIN_H - 2               // 弹窗竖直方向退场终止位置
-#define WIN_MSG_H 48                       // 消息弹窗高度
-#define WIN_MSG_W 120                      // 消息弹窗宽度
+#define WIN_FONT u8g2_font_HelvetiPixel_tr     // 弹窗字体
+#define WIN_H 32                               // 弹窗高度
+#define WIN_W 102                              // 弹窗宽度
+#define WIN_BAR_W 92                           // 弹窗进度条宽度
+#define WIN_BAR_H 7                            // 弹窗进度条高度
+#define WIN_Y -WIN_H - 2                       // 弹窗竖直方向出场起始位置
+#define WIN_Y_TRG -WIN_H - 2                   // 弹窗竖直方向退场终止位置
+#define WIN_MSG_H 48                           // 消息弹窗高度
+#define WIN_MSG_W 120                          // 消息弹窗宽度
+#define WIN_MSG_FONT u8g2_font_wqy12_t_gb2312a // 消息弹窗字体
 
 struct win_t
 {

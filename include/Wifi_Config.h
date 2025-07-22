@@ -17,7 +17,7 @@ extern wifi_t wifi;
 
 //===========需要调用的函数===========
 void checkConnect(bool reConnect); // 检测wifi是否已经连接
-void restoreWiFi();                // 删除保存的wifi信息
+bool restoreWiFi();                // 删除保存的wifi信息
 void checkDNS_HTTP();              // 检测客户端DNS&HTTP请求
 bool connectToWiFi(int timeOut_s); // 连接WiFi
 

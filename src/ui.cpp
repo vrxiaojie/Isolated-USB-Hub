@@ -930,7 +930,7 @@ void window_proc()
     if (win.is_msg)
     {
         // 更新动画目标值
-        u8g2.setFont(WIN_FONT);
+        u8g2.setFont(WIN_MSG_FONT);
         // 计算动画过渡值
         animation(&win.y, &win.y_msg_trg, WIN_ANI);
         // 绘制窗口
@@ -939,11 +939,9 @@ void window_proc()
         u8g2.setDrawColor(1);
         u8g2.drawRFrame(win.l_msg, (int16_t)win.y, WIN_MSG_W, WIN_MSG_H, 2); // 绘制外框描边
         // 绘制标题
-        u8g2.setCursor(win.l_msg + 5, (int16_t)win.y + 14);
-        u8g2.print(win.title);
+        u8g2.drawUTF8(win.l_msg + 5, (int16_t)win.y + 14, win.title);
         // 绘制小标题
-        u8g2.setCursor(win.l_msg + 5, (int16_t)win.y + 26);
-        u8g2.print(win.sub_title);
+        u8g2.drawUTF8(win.l_msg + 5, (int16_t)win.y + 26, win.sub_title);
         // 绘制OK按钮
         u8g2.setCursor(WIN_MSG_W / 2 - 9, (int16_t)win.y + 42);
         u8g2.print("OK");
@@ -1512,7 +1510,10 @@ void wifi_proc()
                 ui.state = S_LAYER_IN;
                 break;
             case 4: // 重置WiFi
-                    // TODO
+                if (restoreWiFi())
+                    window_msg_init("WiFi重置成功", "");
+                else
+                    window_msg_init("WiFi重置失败", "请重试");
                 break;
             }
             break;

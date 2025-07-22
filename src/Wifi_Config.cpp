@@ -391,11 +391,13 @@ bool connectToWiFi(int timeOut_s)
 /*
  * 删除保存的wifi信息，这里的删除是删除存储在flash的信息。删除后wifi读不到上次连接的记录，需重新配网
  */
-void restoreWiFi()
+bool restoreWiFi()
 {
+  WiFi.mode(WIFI_STA);
   Serial.println("connection config reset");
-  delay(20);
-  WiFi.eraseAP();
+  bool ret = WiFi.eraseAP();
+  WiFi.mode(WIFI_OFF);
+  return ret;
 }
 
 /*
