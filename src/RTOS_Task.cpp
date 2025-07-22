@@ -143,7 +143,7 @@ void WebSocket_Task(void *args)
             {
                 xTaskNotify(INA226_Task_Handle, i, eSetValueWithOverwrite);
                 // 构造 JSON 数据包
-                String jsonData = "{\"usb_port\": " + String(i + 1) + ", \"voltage\": " + String(ina226_data[i].busVoltage) + ", \"current\": " + String(ina226_data[i].current_mA) + ", \"power\": " + String(ina226_data[i].power_mW) + ", \"status\": " + usb_switch.switches[i] ? "true" : "false" + "}";
+                String jsonData = "{\"usb_port\": " + String(i + 1) + ", \"voltage\": " + String(ina226_data[i].busVoltage) + ", \"current\": " + String(ina226_data[i].current_mA) + ", \"power\": " + String(ina226_data[i].power_mW) + ", \"status\": " + String(usb_switch.switches[i] ? "true" : "false") + "}";
                 webSocket.broadcastTXT(jsonData); // 向所有客户端广播数据
             }
             delay(500); // 每1s更新一次数据
