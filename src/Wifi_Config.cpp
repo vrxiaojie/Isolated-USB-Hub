@@ -341,8 +341,8 @@ bool connectToWiFi(int timeOut_s)
 {
   WiFi.hostname(HOST_NAME); // 设置设备名
   Serial.println("connectToWiFi()");
-  WiFi.mode(WIFI_STA);       // 设置为STA模式并连接WIFI
-  WiFi.setAutoConnect(true); // 设置自动连接
+  WiFi.mode(WIFI_STA);         // 设置为STA模式并连接WIFI
+  WiFi.setAutoReconnect(true); // 设置自动连接
 
   if (wifi_ssid != "") // wifi_ssid不为空，意味着从网页读取到wifi
   {

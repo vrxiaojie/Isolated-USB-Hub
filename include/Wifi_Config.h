@@ -11,6 +11,7 @@ extern int connectTimeOut_s;  // WiFi连接超时时间，单位秒
 struct wifi_t
 {
     bool connectfailed = false;
+    bool wifi_power = false;
 };
 extern wifi_t wifi;
 

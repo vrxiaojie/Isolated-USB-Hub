@@ -53,6 +53,9 @@ enum
     M_USB_MONITOR,
     M_USB_MONITOR_SETTING,
     M_WIFI,
+    M_WIFI_CONN,   // 连接wifi页
+    M_WIFI_INFO,   // 网络信息页
+    M_WIFI_CONFIG, // wifi配网页
     M_SETTING,
     M_ABOUT,
 };
