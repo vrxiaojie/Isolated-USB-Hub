@@ -3,6 +3,8 @@
         "memory_resource": "cpp",
         "numeric": "cpp",
         "limits": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "chrono": "cpp",
+        "ratio": "cpp"
     }
 }

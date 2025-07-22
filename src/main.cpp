@@ -15,8 +15,9 @@ void setup()
 {
   Serial.begin(115200);
   Wire.begin(SDA, SCL);
-  WiFi.begin();
+
   EEPROM_read_ui_setting();
+  EEPROM_read_wifi_setting();
   set_usb_monitor_param();
   ui_init();
   oled_init();
@@ -24,6 +25,10 @@ void setup()
   switch_pin_init();
   tile_param_init(); // 默认进入主菜单ui.index = M_MAIN，需要初始化磁贴
 
+  if (wifi.param[WIFI_AUTO_CONN]) // 开机自动连接WIFI
+  {
+    WiFi.begin();
+  }
   xTaskCreate(INA226_Task, "ina226", 1024 * 10, NULL, 3, &INA226_Task_Handle);
   xTaskCreate(btn_scan, "knob", 1024 * 20, NULL, 4, NULL);
   xTaskCreate(OVC_detect_Task, "OVC_Task", 1024 * 10, NULL, 3, &OVC_detect_Task_Handler);

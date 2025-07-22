@@ -6,12 +6,19 @@
 #include <WebServer.h>
 #include <ESPmDNS.h> //用于设备域名 MDNS.begin("esp32")
 
+enum
+{
+    WIFI_AUTO_CONN,
+    WIFI_DISABLE_ON_SLEEP,
+};
+#define WIFI_PARAM 2
 extern const char *HOST_NAME; // 设置设备名
 extern int connectTimeOut_s;  // WiFi连接超时时间，单位秒
 struct wifi_t
 {
     bool connectfailed = false;
     bool wifi_power = false;
+    uint8_t param[WIFI_PARAM] = {0};
 };
 extern wifi_t wifi;
 

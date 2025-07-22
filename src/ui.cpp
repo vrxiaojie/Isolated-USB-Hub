@@ -25,7 +25,7 @@ M_SELECT main_menu_exp[]{
     {"[ 进入睡眠模式 ]"},
     {"[ 控制USB的开关 ]"},
     {"[ 监测电压 电流 功率 ]"},
-    {"[ 查看/连接WiFi ]"},
+    {"[ 查看/连接/设置WiFi ]"},
     {"[ 修改设置 ]"},
 };
 
@@ -86,10 +86,13 @@ M_SELECT about_menu[]{
 
 M_SELECT wifi_menu[]{
     {"[ WiFi配置页 ]"},
-    {"连接WiFi"},
-    {"网络信息"},
-    {"WiFi配网"},
-    {"重置WiFi"},
+    {"+ 自动连接WiFi"},
+    {"+ 睡眠关闭WiFi"},
+    {"- 连接WiFi"},
+    {"- 网络信息"},
+    {"- WiFi配网"},
+    {"- 重置WiFi"},
+
 };
 /************************************* 页面变量 *************************************/
 
@@ -241,13 +244,13 @@ void sleep_param_init()
     u8g2.setDrawColor(0);
     u8g2.drawBox(0, 0, DISP_W, DISP_H);
     u8g2.setPowerSave(1);
+    // 睡眠自动关闭WiFi
+    if (wifi.param[WIFI_DISABLE_ON_SLEEP])
+    {
+        WiFi.mode(WIFI_OFF);
+    }
     ui.state = S_NONE;
     ui.sleep = true;
-    if (eeprom.change)
-    {
-        EEPROM_write_ui_setting(true);
-        eeprom.change = false;
-    }
 }
 
 // 开关页初始化
@@ -273,26 +276,14 @@ void setting_param_init()
     check_box_m_init(ui.param);
 }
 
-/********************************** 通用初始化函数 *********************************/
-
-/*
-  页面层级管理逻辑是，把所有页面都先当作列表类初始化，不是列表类按需求再初始化对应函数
-  这样做会浪费一些资源，但跳转页面时只需要考虑页面层级，逻辑上更清晰，减少出错
-*/
-
-// 弹窗动画初始化
-void window_param_init()
-{
-    win.bar = 0;
-    win.y = WIN_Y;
-    win.y_trg = win.u;
-    win.y_msg_trg = win.u_msg;
-    ui.state = S_NONE;
-}
-
-// WIFI配网显示
+// WIFI页面的初始化
 void wifi_init()
 {
+    check_box_m_init(wifi.param);
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        wifi_menu[3].m_select = "断开WiFi";
+    }
 }
 
 // wifi连接页面显示前的初始化
@@ -302,7 +293,7 @@ void wifi_conn_init()
     // 如果wifi已连接，则直接关闭wifi
     if (WiFi.status() == WL_CONNECTED)
     {
-        wifi_menu[1].m_select = "连接WiFi";
+        wifi_menu[3].m_select = "连接WiFi";
         WiFi.mode(WIFI_OFF);
         wifi.wifi_power = false;
     }
@@ -330,6 +321,23 @@ void wifi_config_init()
     WiFi.scanNetworks(true); // 异步扫描
 }
 
+/********************************** 通用初始化函数 *********************************/
+
+/*
+  页面层级管理逻辑是，把所有页面都先当作列表类初始化，不是列表类按需求再初始化对应函数
+  这样做会浪费一些资源，但跳转页面时只需要考虑页面层级，逻辑上更清晰，减少出错
+*/
+
+// 弹窗动画初始化
+void window_param_init()
+{
+    win.bar = 0;
+    win.y = WIN_Y;
+    win.y_trg = win.u;
+    win.y_msg_trg = win.u_msg;
+    ui.state = S_NONE;
+}
+
 // 进入更深层级时的初始化
 void layer_init_in()
 {
@@ -353,6 +361,7 @@ void layer_init_in()
         usb_monitor_param_init();
         break; // 主菜单进入电压测量页，动画初始化
     case M_WIFI:
+        Serial.println("进入M_WIFI");
         wifi_init();
         break;
     case M_WIFI_CONN:
@@ -1013,8 +1022,13 @@ void sleep_proc()
             ui.state = S_LAYER_IN;
             u8g2.setPowerSave(0);
             ui.sleep = false;
+            // 从睡眠恢复自动连接WiFi
+            if (wifi.param[WIFI_DISABLE_ON_SLEEP])
+            {
+                WiFi.begin();
+            }
         }
-        delay(1);
+        delay(100);
     }
 }
 
@@ -1320,7 +1334,7 @@ void wifi_conn_proc()
     {
         if (WiFi.status() == WL_CONNECTED)
         {
-            wifi_menu[1].m_select = "断开WiFi";
+            wifi_menu[3].m_select = "断开WiFi";
             u8g2.clearBuffer();
             u8g2.setDrawColor(1);
             u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
@@ -1434,7 +1448,7 @@ void wifi_config_proc()
             }
             if (WiFi_status == WL_CONNECTED) // 检测到连接成功后 显示网络信息
             {
-                wifi_menu[1].m_select = "断开WiFi";
+                wifi_menu[3].m_select = "断开WiFi";
                 u8g2.clearBuffer();
                 u8g2.setDrawColor(1);
                 u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
@@ -1495,6 +1509,11 @@ void wifi_proc()
             list_rotate_switch();
             break;
         case BTN_ID_LP:
+            if (eeprom.change == true)
+            {
+                eeprom.change = false;
+                EEPROM_write_wifi_setting();
+            }
             ui.select[ui.layer] = 0;
         case BTN_ID_SP:
             switch (ui.select[ui.layer])
@@ -1504,21 +1523,30 @@ void wifi_proc()
                 ui.state = S_LAYER_OUT;
                 WiFi.scanDelete();
                 break;
-            case 1: // 连接WiFi
+            case 1: // 开机自动连接WIFI选项
+                check_box_m_select(WIFI_AUTO_CONN);
+                break;
+            case 2: // 睡眠时关闭WIFI选项
+                check_box_m_select(WIFI_DISABLE_ON_SLEEP);
+                break;
+            case 3: // 连接WiFi
                 ui.index = M_WIFI_CONN;
                 ui.state = S_LAYER_IN;
                 break;
-            case 2: // 网络信息
+            case 4: // 网络信息
                 ui.index = M_WIFI_INFO;
                 ui.state = S_LAYER_IN;
                 break;
-            case 3: // 配网
+            case 5: // 配网
                 ui.index = M_WIFI_CONFIG;
                 ui.state = S_LAYER_IN;
                 break;
-            case 4: // 重置WiFi
+            case 6: // 重置WiFi
                 if (restoreWiFi())
+                {
+                    wifi_menu[3].m_select = "断开WiFi";
                     window_msg_init("WiFi重置成功", "");
+                }
                 else
                     window_msg_init("WiFi重置失败", "请重试");
                 break;

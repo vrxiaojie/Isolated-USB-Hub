@@ -1,5 +1,6 @@
 #include "e2prom.h"
 #include "ui.h"
+#include "Wifi_Config.h"
 #include "Preferences.h"
 
 eeprom_t eeprom;
@@ -241,6 +242,38 @@ void EEPROM_read_ui_setting()
         }
     }
     prefs.end();
+}
+
+void EEPROM_write_wifi_setting()
+{
+    Preferences prefs; // 声明Preferences对象
+    prefs.begin("wifi");
+    for (uint8_t i = 0; i < WIFI_PARAM; i++)
+    {
+        switch (i)
+        {
+        case WIFI_AUTO_CONN:
+            if (prefs.getUInt("WIFI_AUTO_CONN", wifi.param[WIFI_AUTO_CONN]) != wifi.param[WIFI_AUTO_CONN])
+            {
+                prefs.putUInt("WIFI_AUTO_CONN", wifi.param[WIFI_AUTO_CONN]);
+            }
+            break;
+        case WIFI_DISABLE_ON_SLEEP:
+            if (prefs.getUInt("WIFI_DISABLE_ON_SLEEP", wifi.param[WIFI_DISABLE_ON_SLEEP]) != wifi.param[WIFI_DISABLE_ON_SLEEP])
+            {
+                prefs.putUInt("WIFI_DISABLE_ON_SLEEP", wifi.param[WIFI_DISABLE_ON_SLEEP]);
+            }
+            break;
+        }
+    }
+    prefs.end();
+}
+
+void EEPROM_read_wifi_setting()
+{
+    const char *part_name = "wifi";
+    wifi.param[WIFI_AUTO_CONN] = EEPROM_read_single_data(part_name, "WIFI_AUTO_CONN");
+    wifi.param[WIFI_DISABLE_ON_SLEEP] = EEPROM_read_single_data(part_name, "WIFI_DISABLE_ON_SLEEP");
 }
 
 void EEPROM_clear_namespace(const char *ns)
