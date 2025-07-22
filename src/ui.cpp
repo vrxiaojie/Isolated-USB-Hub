@@ -318,16 +318,6 @@ void wifi_conn_init()
     }
 }
 
-// 网络信息页面显示前的初始化
-void wifi_info_init()
-{
-    if (WiFi.status() != WL_CONNECTED)
-    {
-        // TODO:使用消息弹窗提示
-        return;
-    }
-}
-
 // wifi配网页面显示前的初始化
 void wifi_config_init()
 {
@@ -366,6 +356,9 @@ void layer_init_in()
         break;
     case M_WIFI_CONN:
         wifi_conn_init();
+        break;
+    case M_WIFI_CONFIG:
+        wifi_config_init();
         break;
     case M_SETTING:
         setting_param_init();
@@ -1377,7 +1370,10 @@ void wifi_info_proc()
     u8g2.setDrawColor(1);
     u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
     u8g2.drawUTF8(0, 16, "[ 网络信息 ]");
-    u8g2.drawUTF8(0, 32, WiFi.SSID().c_str()); // WiFi SSID
+    if (WiFi.status() == WL_CONNECTED)
+        u8g2.drawUTF8(0, 32, WiFi.SSID().c_str()); // WiFi SSID
+    else
+        u8g2.drawUTF8(0, 32, "WiFi未连接!");
     u8g2.setCursor(0, 48);
     u8g2.printf("ip : %s", WiFi.localIP().toString()); // IP
     u8g2.setCursor(0, 64);
@@ -1433,6 +1429,7 @@ void wifi_config_proc()
             }
             if (WiFi_status == WL_CONNECTED) // 检测到连接成功后 显示网络信息
             {
+                wifi_menu[1].m_select = "断开WiFi";
                 u8g2.clearBuffer();
                 u8g2.setDrawColor(1);
                 u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
@@ -1456,6 +1453,7 @@ void wifi_config_proc()
                 ui.state = S_LAYER_OUT;
                 WiFi.scanDelete();
                 WiFi.mode(WIFI_OFF); // 关闭WiFi
+                wifi.connectfailed = false;
                 return;
             }
             else // 若还未连接 则显示提示信息

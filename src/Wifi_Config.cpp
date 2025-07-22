@@ -199,8 +199,8 @@ void handleConfigWifi() // 返回http状态
               "<h1>正在连接 WiFi...</h1>"
               "<p>SSID：" +
                   wifi_ssid + "</p>"
-                              "<p>已取得WiFi信息，正在尝试连接<br></p>"
-                              "<p>若连接成功设备将自动重启。请手动关闭此页面。</p>"
+                              "<p>已取得WiFi信息,正在尝试连接<br></p>"
+                              "<p>连接结果将展示在Hub屏幕上,请注意查看。</p>"
                               "</div>"
                               "</body>"
                               "</html>");
