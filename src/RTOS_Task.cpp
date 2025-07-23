@@ -130,12 +130,24 @@ void OVC_detect_Task(void *args)
 #include "ws.h"
 TaskHandle_t webSocketTaskHandle = NULL;
 static TimerHandle_t wsTimer = NULL;
-bool wifi_connected = false; // 本地的wifi连接状态变量
+bool wifi_connected = false;   // 本地的wifi连接状态变量
+bool clientsConnected = false; // 是否有客户端连接的变量
 // 定时器回调 - 用于定期广播数据
 void wsTimerCallback(TimerHandle_t xTimer)
 {
     static uint8_t cnt = 0;
     cnt++;
+    // 检查是否有客户端连接
+    bool hasClients = false;
+    for (uint8_t i = 0; i < WEBSOCKETS_SERVER_CLIENT_MAX; i++)
+    {
+        if (webSocket.clientIsConnected(i))
+        {
+            hasClients = true;
+            break;
+        }
+    }
+    clientsConnected = hasClients;
     // 每5s检查一次wifi连接情况
     if (cnt >= 5)
     {
@@ -149,7 +161,8 @@ void wsTimerCallback(TimerHandle_t xTimer)
             wifi_connected = false;
         }
     }
-    if (wifi_connected && webSocketTaskHandle != NULL)
+    // 仅当有客户端连接且wifi连接时，才发送数据
+    if (clientsConnected && wifi_connected && webSocketTaskHandle != NULL)
     {
         // 通知WebSocket任务发送数据
         xTaskNotifyGive(webSocketTaskHandle);

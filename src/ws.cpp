@@ -16,7 +16,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
     }
     else if (type == WStype_TEXT)
     {
-        Serial.printf("Received data from client: %s\n", payload);
+        // Serial.printf("Received data from client: %s\n", payload);
 
         // 解析 JSON 命令 控制USB的开关
         JsonDocument doc;
@@ -28,7 +28,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
 
             switch_ctrl(usb_port - 1, status);
 
-            Serial.printf("usb%d : %d", usb_port, status);
+            // Serial.printf("usb%d : %d", usb_port, status);
         }
     }
 }
