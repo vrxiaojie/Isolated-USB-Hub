@@ -282,7 +282,7 @@ void wifi_init()
     check_box_m_init(wifi.param);
     if (WiFi.status() == WL_CONNECTED)
     {
-        wifi_menu[3].m_select = "断开WiFi";
+        wifi_menu[3].m_select = "- 断开WiFi";
     }
 }
 
@@ -361,7 +361,6 @@ void layer_init_in()
         usb_monitor_param_init();
         break; // 主菜单进入电压测量页，动画初始化
     case M_WIFI:
-        Serial.println("进入M_WIFI");
         wifi_init();
         break;
     case M_WIFI_CONN:
@@ -1334,7 +1333,7 @@ void wifi_conn_proc()
     {
         if (WiFi.status() == WL_CONNECTED)
         {
-            wifi_menu[3].m_select = "断开WiFi";
+            wifi_menu[3].m_select = "- 断开WiFi";
             u8g2.clearBuffer();
             u8g2.setDrawColor(1);
             u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
@@ -1448,7 +1447,7 @@ void wifi_config_proc()
             }
             if (WiFi_status == WL_CONNECTED) // 检测到连接成功后 显示网络信息
             {
-                wifi_menu[3].m_select = "断开WiFi";
+                wifi_menu[3].m_select = "- 断开WiFi";
                 u8g2.clearBuffer();
                 u8g2.setDrawColor(1);
                 u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
@@ -1544,7 +1543,7 @@ void wifi_proc()
             case 6: // 重置WiFi
                 if (restoreWiFi())
                 {
-                    wifi_menu[3].m_select = "断开WiFi";
+                    wifi_menu[3].m_select = "- 断开WiFi";
                     window_msg_init("WiFi重置成功", "");
                 }
                 else
