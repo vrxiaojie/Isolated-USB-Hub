@@ -128,17 +128,70 @@ void OVC_detect_Task(void *args)
 
 #include "WiFi.h"
 #include "ws.h"
+TaskHandle_t webSocketTaskHandle = NULL;
+static TimerHandle_t wsTimer = NULL;
+bool wifi_connected = false;   // 本地的wifi连接状态变量
+bool clientsConnected = false; // 是否有客户端连接的变量
+// 定时器回调 - 用于定期广播数据
+void wsTimerCallback(TimerHandle_t xTimer)
+{
+    static uint8_t cnt = 0;
+    cnt++;
+    // 检查是否有客户端连接
+    bool hasClients = false;
+    for (uint8_t i = 0; i < WEBSOCKETS_SERVER_CLIENT_MAX; i++)
+    {
+        if (webSocket.clientIsConnected(i))
+        {
+            hasClients = true;
+            break;
+        }
+    }
+    clientsConnected = hasClients;
+    // 每5s检查一次wifi连接情况
+    if (cnt >= 5)
+    {
+        cnt = 0;
+        if (WiFi.status() == WL_CONNECTED)
+        {
+            wifi_connected = true;
+        }
+        else
+        {
+            wifi_connected = false;
+        }
+    }
+    // 仅当有客户端连接且wifi连接时，才发送数据
+    if (clientsConnected && wifi_connected && webSocketTaskHandle != NULL)
+    {
+        // 通知WebSocket任务发送数据
+        xTaskNotifyGive(webSocketTaskHandle);
+    }
+}
+
 void WebSocket_Task(void *args)
 {
-    int voltage, current, power = 0;
     WiFi.begin();
     webSocket.begin();
     webSocket.onEvent(webSocketEvent); // 设置 WebSocket 事件回调
+    webSocket.enableHeartbeat(15000, 3000, 15);
+
+    wsTimer = xTimerCreate(
+        "wsTimer",
+        1000,   // 1秒
+        pdTRUE, // 自动重载
+        NULL,
+        wsTimerCallback);
+    if (wsTimer != NULL)
+    {
+        xTimerStart(wsTimer, 0);
+    }
     while (1)
     {
-        if (WiFi.status() == WL_CONNECTED)
+        webSocket.loop(); // 处理 WebSocket 事件
+        uint32_t notificationValue = 0;
+        if (xTaskNotifyWait(0, ULONG_MAX, &notificationValue, 0) == pdTRUE)
         {
-            webSocket.loop(); // 处理 WebSocket 事件
             for (uint8_t i = 0; i < 4; i++)
             {
                 xTaskNotify(INA226_Task_Handle, i, eSetValueWithOverwrite);
@@ -146,11 +199,7 @@ void WebSocket_Task(void *args)
                 String jsonData = "{\"usb_port\": " + String(i + 1) + ", \"voltage\": " + String(ina226_data[i].busVoltage) + ", \"current\": " + String(ina226_data[i].current_mA) + ", \"power\": " + String(ina226_data[i].power_mW) + ", \"status\": " + String(usb_switch.switches[i] ? "true" : "false") + "}";
                 webSocket.broadcastTXT(jsonData); // 向所有客户端广播数据
             }
-            delay(500); // 每1s更新一次数据
         }
-        else
-        {
-            delay(2000);
-        }
+        delay(1);
     }
 }
