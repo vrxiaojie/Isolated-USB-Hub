@@ -10,12 +10,13 @@
 #include "switch.h"
 #include "ina226_data.h"
 #include "Wifi_Config.h"
+#include "encrypt.h"
 
 void setup()
 {
   Serial.begin(115200);
   Wire.begin(SDA, SCL);
-
+  encrypt_mac();
   EEPROM_read_ui_setting();
   EEPROM_read_wifi_setting();
   set_usb_monitor_param();
