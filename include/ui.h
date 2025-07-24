@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include "oled.h"
 
+#define PROG_VERSION "- 版本:v1.0.2"
 // UI变量
 #define UI_DEPTH 20  // 最深层级数
 #define UI_MNUMB 100 // 菜单数量
