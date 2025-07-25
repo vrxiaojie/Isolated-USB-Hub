@@ -1,22 +1,50 @@
 #include "encrypt.h"
-#include <Arduino.h>
-#include <mbedtls/aes.h>
-#include <mbedtls/sha256.h>
 const byte key[16] = {'V', 'R', 'x', 'i', 'a', 'o', 'j', 'i', 'e', '-', 'U', 'S', 'B', 'H', 'u', 'b'};
 uint8_t mac[6];
+unsigned char hash[32]; // SHA256 输出长度为 32 字节
 
-bool encrypt_mac()
+bool check_encrypted_mac(String received_data)
 {
-    // test 加密
-    byte aes_input[16]; // AES 输入大小必须是16字节
-    esp_efuse_mac_get_default(mac);
+    // 检查是否匹配
+    String calculated_hash = "";
+    for (int i = 0; i < 32; i++)
+    {
+        calculated_hash += String(hash[i], HEX); // 拼接计算得到的SHA256哈希值
+    }
+
+    if (calculated_hash.equals(received_data))
+    {
+        Serial.println("Activation Successful!");
+        // 执行激活后的操作
+        return true;
+    }
+    else
+    {
+        Serial.println("Activation Failed: Hash mismatch.");
+        // 执行失败后的操作
+        return false;
+    }
+}
+
+void send_mac()
+{
     Serial.print("MAC:");
+    esp_efuse_mac_get_default(mac);
     for (int i = 0; i < 6; i++)
     {
         Serial.printf("%X", mac[i]);
-        aes_input[i] = mac[i]; // 将 MAC 地址前6个字节填入输入
     }
     Serial.println();
+}
+
+void encrypt_mac()
+{
+    // test 加密
+    byte aes_input[16]; // AES 输入大小必须是16字节
+    for (int i = 0; i < 6; i++)
+    {
+        aes_input[i] = mac[i]; // 将 MAC 地址前6个字节填入输入
+    }
     // 填充其余字节（AES 输入必须是16字节）
     for (int i = 6; i < 16; i++)
     {
@@ -37,7 +65,6 @@ bool encrypt_mac()
     }
     Serial.println();
     // 使用 SHA256 生成身份码
-    unsigned char hash[32]; // SHA256 输出长度为 32 字节
     mbedtls_sha256_context sha256_ctx;
     mbedtls_sha256_init(&sha256_ctx);
     mbedtls_sha256_starts(&sha256_ctx, 0);                 // 0 表示无补码
