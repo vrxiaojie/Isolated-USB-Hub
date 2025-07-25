@@ -18,4 +18,6 @@ uint32_t EEPROM_read_single_data(const char *part_name, const char *name);
 void EEPROM_clear_namespace(const char *ns);
 void EEPROM_read_wifi_setting();
 void EEPROM_write_wifi_setting();
+void EEPROM_write_activation();
+bool EEPROM_read_activation();
 #endif

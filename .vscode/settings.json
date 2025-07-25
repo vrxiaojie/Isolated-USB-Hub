@@ -5,6 +5,7 @@
         "limits": "cpp",
         "random": "cpp",
         "chrono": "cpp",
-        "ratio": "cpp"
+        "ratio": "cpp",
+        "cstddef": "cpp"
     }
 }
