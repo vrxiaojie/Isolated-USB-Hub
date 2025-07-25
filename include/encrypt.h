@@ -6,4 +6,5 @@
 bool check_encrypted_mac(String received_data);
 void send_mac();
 void encrypt_mac();
+void activation_loop();
 #endif

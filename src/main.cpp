@@ -16,26 +16,19 @@ void setup()
 {
   Serial.begin(115200);
   Wire.begin(SDA, SCL);
-  send_mac();
-  encrypt_mac();
-  while (1)
-  {
-    if (Serial.available())
-    {
-      String received_data = Serial.readString(); // 接收电脑端发送的SHA256哈希数据
-      received_data.trim();                       // 去除可能的换行符
-      // 打印接收到的数据
-      Serial.print("Received Encrypted Data (SHA256): ");
-      Serial.println(received_data);
+  oled_init();
 
-      check_encrypted_mac(received_data);
-    }
+  encrypt_mac();
+  // 如果未激活
+  if (EEPROM_read_activation() == false)
+  {
+    activation_loop();
   }
+
   EEPROM_read_ui_setting();
   EEPROM_read_wifi_setting();
   set_usb_monitor_param();
   ui_init();
-  oled_init();
   btn_init();
   switch_pin_init();
   tile_param_init(); // 默认进入主菜单ui.index = M_MAIN，需要初始化磁贴

@@ -287,6 +287,23 @@ void EEPROM_read_wifi_setting()
     }
 }
 
+// 获取激活状态
+bool EEPROM_read_activation()
+{
+    Preferences prefs; // 声明Preferences对象
+    prefs.begin("activation");
+    return prefs.getBool("activated", false);
+}
+
+// 保存激活结果
+void EEPROM_write_activation()
+{
+    Preferences prefs; // 声明Preferences对象
+    prefs.begin("activation");
+    prefs.putBool("activated", true);
+    prefs.end();
+}
+
 void EEPROM_clear_namespace(const char *ns)
 {
     Preferences prefs; // 声明Preferences对象
