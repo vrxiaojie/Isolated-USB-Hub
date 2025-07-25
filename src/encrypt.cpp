@@ -82,10 +82,10 @@ void activation_loop()
             {
                 send_mac();
             }
-            else
+            else if (received_data.startsWith("activation_code:"))
             {
                 // 如果激活成功则写入e2prom，并重启设备
-                if (check_encrypted_mac(received_data) == true)
+                if (check_encrypted_mac(received_data.substring(received_data.indexOf(":") + 1)) == true)
                 {
                     EEPROM_write_activation();
                     esp_restart();
