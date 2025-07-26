@@ -312,6 +312,7 @@ void wifi_conn_init()
 // wifi配网页面显示前的初始化
 void wifi_config_init()
 {
+    wifi.connectfailed = false;
     initSoftAP();
     initDNS();
     initWebServer();
