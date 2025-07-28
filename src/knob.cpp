@@ -20,14 +20,12 @@ void knob_inter()
         btn.CW_2 = !btn.blv;
         if (btn.CW_1 && btn.CW_2)
         {
-            Serial.println("顺时针");
-            btn.id = BTN_ID_CC;
+            btn.id = BTN_ID_CW;
             btn.pressed = true;
         }
         if (btn.CW_1 == false && btn.CW_2 == false)
         {
-            Serial.println("逆时针");
-            btn.id = BTN_ID_CW;
+            btn.id = BTN_ID_CC;
             btn.pressed = true;
         }
         btn.flag = false;
