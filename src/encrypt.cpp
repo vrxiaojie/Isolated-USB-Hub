@@ -2,26 +2,28 @@
 #include "e2prom.h"
 const byte key[16] = {'V', 'R', 'x', 'i', 'a', 'o', 'j', 'i', 'e', '-', 'U', 'S', 'B', 'H', 'u', 'b'};
 uint8_t mac[6];
-unsigned char hash[32]; // SHA256 输出长度为 32 字节
+unsigned char hash[33]; // SHA256 输出长度为 32 字节
 
 bool check_encrypted_mac(String received_data)
 {
     // 检查是否匹配
     String calculated_hash = "";
+    char hexBuffer[3];
     for (int i = 0; i < 32; i++)
     {
-        calculated_hash += String(hash[i], HEX); // 拼接计算得到的SHA256哈希值
+        sprintf(hexBuffer, "%02x", hash[i]);
+        calculated_hash += String(hexBuffer);
     }
 
     if (calculated_hash.equals(received_data))
     {
-        Serial.println("激活成功!");
+        Serial.println("activation:success");
         // 执行激活后的操作
         return true;
     }
     else
     {
-        Serial.println("激活失败!");
+        Serial.println("activation:failed");
         // 执行失败后的操作
         return false;
     }
