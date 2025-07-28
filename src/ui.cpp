@@ -8,6 +8,7 @@
 #include "oled.h"
 #include "switch.h"
 #include "Wifi_Config.h"
+#include "queue.h"
 
 /************************************* 定义内容 *************************************/
 
@@ -630,7 +631,7 @@ void usb_monitor_show()
     case 1:
     case 2:
     case 3:
-        xTaskNotify(INA226_Task_Handle, idx, eSetValueWithOverwrite);
+        xQueueSend(INA226_Queue, &idx, portMAX_DELAY);
         if (ina226_data[idx].init)
         {
 
@@ -679,7 +680,7 @@ void usb_monitor_show()
         {
             if (ina226_data[i].init)
             {
-                xTaskNotify(INA226_Task_Handle, i, eSetValueWithOverwrite);
+                xQueueSend(INA226_Queue, &i, portMAX_DELAY);
                 if (ina226_data[i].busVoltage > maxBusVolt)
                     maxBusVolt = ina226_data[i].busVoltage;
                 totalCurrent_mA += ina226_data[i].current_mA;
