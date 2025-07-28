@@ -37,9 +37,8 @@ void knob_inter()
 void btn_init()
 {
     // 初始化IO
-    // TODO: 实装时不需要上拉输入
-    pinMode(AIO, INPUT_PULLUP);
-    pinMode(BIO, INPUT_PULLUP);
-    pinMode(SW, INPUT_PULLUP);
+    pinMode(AIO, INPUT);
+    pinMode(BIO, INPUT);
+    pinMode(SW, INPUT);
     attachInterrupt(digitalPinToInterrupt(AIO), knob_inter, CHANGE);
 }
