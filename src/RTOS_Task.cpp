@@ -4,9 +4,28 @@
 #include "ui.h"
 #include "switch.h"
 
+static TimerHandle_t INA226_timer = NULL;
 TaskHandle_t INA226_Task_Handle = NULL;
+// INA226定时刷新数据回调函数
+void INA226TimerCallback(TimerHandle_t xTimer)
+{
+    xTimerChangePeriod(xTimer, 1000 / usb_monitor.param[REFRESH_RATE], 0);
+    xTaskNotifyGive(INA226_Task_Handle);
+}
+
 void INA226_Task(void *arg)
 {
+    INA226_timer = xTimerCreate(
+        "INA226_timer",
+        100,    // 100ms
+        pdTRUE, // 自动重载
+        NULL,
+        INA226TimerCallback);
+    if (INA226_timer != NULL)
+    {
+        xTimerStart(INA226_timer, 0);
+    }
+
     uint8_t addr[4] = {0x40, 0x41, 0x43, 0x44};
     for (uint8_t i = 0; i < 4; i++)
     {
@@ -25,27 +44,18 @@ void INA226_Task(void *arg)
 
     for (;;)
     {
-        uint32_t idx;
-        // 当获取到通知(进入数据显示页时)才开始工作
-        xTaskNotifyWait(0, 0, &idx, portMAX_DELAY);
-        switch (idx)
+        if (ulTaskNotifyTake(pdTRUE, portMAX_DELAY) == pdTRUE)
         {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-            if (ina226_data[idx].init)
+            for (uint8_t idx = 0; idx < 4; idx++)
             {
-                ina226_data[idx].busVoltage = ina226_ctrl[idx].getBusVoltage();
-                ina226_data[idx].current_mA = ina226_ctrl[idx].getCurrent_mA();
-                ina226_data[idx].power_mW = ina226_data[idx].busVoltage * ina226_data[idx].current_mA;
+                if (ina226_data[idx].init)
+                {
+                    ina226_data[idx].busVoltage = ina226_ctrl[idx].getBusVoltage();
+                    ina226_data[idx].current_mA = ina226_ctrl[idx].getCurrent_mA();
+                    ina226_data[idx].power_mW = ina226_data[idx].busVoltage * ina226_data[idx].current_mA;
+                }
             }
-            break;
-        case 4:
-            // TODO:  自动轮换显示USB1~4数据
-            break;
         }
-        delay(1000 / usb_monitor.param[REFRESH_RATE]); // 刷新间隔
     }
 }
 
@@ -71,12 +81,10 @@ void btn_scan(void *args)
                 if (btn.count < ui.param[BTN_LPT] * BTN_PARAM_TIMES)
                 {
                     btn.id = BTN_ID_SP;
-                    Serial.println("短按");
                 }
                 else
                 {
                     btn.id = BTN_ID_LP;
-                    Serial.println("长按");
                 }
                 btn.pressed = true;
             }
@@ -190,11 +198,10 @@ void WebSocket_Task(void *args)
     {
         webSocket.loop(); // 处理 WebSocket 事件
         uint32_t notificationValue = 0;
-        if (xTaskNotifyWait(0, ULONG_MAX, &notificationValue, 0) == pdTRUE)
+        if (ulTaskNotifyTake(pdTRUE, 0) == pdTRUE)
         {
             for (uint8_t i = 0; i < 4; i++)
             {
-                xTaskNotify(INA226_Task_Handle, i, eSetValueWithOverwrite);
                 // 构造 JSON 数据包
                 String jsonData = "{\"usb_port\": " + String(i + 1) + ", \"voltage\": " + String(ina226_data[i].busVoltage) + ", \"current\": " + String(ina226_data[i].current_mA) + ", \"power\": " + String(ina226_data[i].power_mW) + ", \"status\": " + String(usb_switch.switches[i] ? "true" : "false") + "}";
                 webSocket.broadcastTXT(jsonData); // 向所有客户端广播数据

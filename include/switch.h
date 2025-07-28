@@ -1,14 +1,14 @@
 #ifndef SWITCH_H_
 #define SWITCH_H_
 
-#define PWREN1 6
-#define PWREN2 15
-#define PWREN3 17
-#define PWREN4 8
-#define OVC1 7
-#define OVC2 16
-#define OVC3 18
-#define OVC4 9
+#define PWREN1 8
+#define PWREN2 17
+#define PWREN3 15
+#define PWREN4 6
+#define OVC1 9
+#define OVC2 18
+#define OVC3 16
+#define OVC4 7
 
 enum
 {

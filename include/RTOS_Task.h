@@ -2,6 +2,7 @@
 #define RTOS_TASK_H_
 #include "FreeRTOS.h"
 #include "task.h"
+#include "queue.h"
 void INA226_Task(void *arg);
 void btn_scan(void *args);
 void OVC_detect_Task(void *args);

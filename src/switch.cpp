@@ -17,6 +17,10 @@ void switch_pin_init()
     pinMode(PWREN2, OUTPUT_OPEN_DRAIN);
     pinMode(PWREN3, OUTPUT_OPEN_DRAIN);
     pinMode(PWREN4, OUTPUT_OPEN_DRAIN);
+    digitalWrite(PWREN1, HIGH);
+    digitalWrite(PWREN2, HIGH);
+    digitalWrite(PWREN3, HIGH);
+    digitalWrite(PWREN4, HIGH);
 }
 
 void switch_ctrl(uint8_t n, uint8_t status)

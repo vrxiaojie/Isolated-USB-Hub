@@ -630,7 +630,6 @@ void usb_monitor_show()
     case 1:
     case 2:
     case 3:
-        xTaskNotify(INA226_Task_Handle, idx, eSetValueWithOverwrite);
         if (ina226_data[idx].init)
         {
 
@@ -679,7 +678,6 @@ void usb_monitor_show()
         {
             if (ina226_data[i].init)
             {
-                xTaskNotify(INA226_Task_Handle, i, eSetValueWithOverwrite);
                 if (ina226_data[i].busVoltage > maxBusVolt)
                     maxBusVolt = ina226_data[i].busVoltage;
                 totalCurrent_mA += ina226_data[i].current_mA;
