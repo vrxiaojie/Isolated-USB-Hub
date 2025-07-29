@@ -98,10 +98,10 @@ TaskHandle_t OVC_detect_Task_Handler = NULL;
 // 检测USB端口过流任务
 void OVC_detect_Task(void *args)
 {
-    pinMode(OVC1, INPUT_PULLUP);
-    pinMode(OVC2, INPUT_PULLUP);
-    pinMode(OVC3, INPUT_PULLUP);
-    pinMode(OVC4, INPUT_PULLUP);
+    pinMode(OVC1, INPUT);
+    pinMode(OVC2, INPUT);
+    pinMode(OVC3, INPUT);
+    pinMode(OVC4, INPUT);
     attachInterrupt(digitalPinToInterrupt(OVC1), over_current_ISR, FALLING);
     attachInterrupt(digitalPinToInterrupt(OVC2), over_current_ISR, FALLING);
     attachInterrupt(digitalPinToInterrupt(OVC3), over_current_ISR, FALLING);
@@ -112,23 +112,28 @@ void OVC_detect_Task(void *args)
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         if (digitalRead(OVC1) == LOW)
         {
-            window_msg_init("USB1", "Over Current!");
-            Serial.println("USB1过流");
+            // 过流后立即切断该路供电，需手动恢复
+            switch_ctrl(SW1, LOW);
+            window_msg_init("USB1", "过流保护");
+            // Serial.println("USB1过流");
         }
         if (digitalRead(OVC2) == LOW)
         {
-            window_msg_init("USB2", "Over Current!");
-            Serial.println("USB2过流");
+            switch_ctrl(SW2, LOW);
+            window_msg_init("USB2", "过流保护");
+            // Serial.println("USB2过流");
         }
         if (digitalRead(OVC3) == LOW)
         {
-            window_msg_init("USB3", "Over Current!");
-            Serial.println("USB3过流");
+            switch_ctrl(SW3, LOW);
+            window_msg_init("USB3", "过流保护");
+            // Serial.println("USB3过流");
         }
         if (digitalRead(OVC4) == LOW)
         {
-            window_msg_init("USB4", "Over Current!");
-            Serial.println("USB4过流");
+            switch_ctrl(SW4, LOW);
+            window_msg_init("USB4", "过流保护");
+            // Serial.println("USB4过流");
         }
         delay(100);
     }
