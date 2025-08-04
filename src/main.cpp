@@ -26,8 +26,8 @@ void setup()
     u8g2.drawUTF8(0, 16, "---设备未激活!---");
     u8g2.drawUTF8(0, 32, "请用PC端激活软件激活,");
     u8g2.drawUTF8(0, 48, "每人免费激活一台设备.");
-    u8g2.drawUTF8(0, 64, "如需激活多台设备,");
-    u8g2.drawUTF8(0, 80, "请私信作者");
+    u8g2.drawUTF8(0, 64, "激活多台设备的方法,");
+    u8g2.drawUTF8(0, 80, "见激活工具的底部.");
     u8g2.drawUTF8(0, 96, "遇问题请在工程下留言");
     u8g2.sendBuffer();
     activation_loop();
@@ -35,7 +35,7 @@ void setup()
 
   EEPROM_read_ui_setting();
   EEPROM_read_wifi_setting();
-  set_usb_monitor_param();
+  EEPROM_read_monitor_setting();
   ui_init();
   btn_init();
   switch_pin_init();

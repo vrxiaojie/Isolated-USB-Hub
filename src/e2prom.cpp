@@ -184,7 +184,7 @@ void EEPROM_read_ui_setting()
     prefs.begin("ui");
     if (prefs.getBool("eeprom_init", false) == false) // 新设备没有初始化过，将会自动初始化并存入设置
     {
-        Serial.println("设置未初始化");
+        // Serial.println("设置未初始化");
         prefs.putBool("eeprom_init", true);
         ui_param_init();
         EEPROM_write_ui_setting(false);
@@ -304,11 +304,54 @@ void EEPROM_write_activation()
     prefs.end();
 }
 
+void EEPROM_write_monitor_setting()
+{
+    Preferences prefs; // 声明Preferences对象
+    prefs.begin("usb_monitor");
+    for (uint8_t i = 0; i < USB_MONITOR_PARAM; i++)
+    {
+        switch (i)
+        {
+        case REFRESH_RATE:
+            if (prefs.getUChar("REFRESH_RATE") != usb_monitor.param[REFRESH_RATE])
+            {
+                prefs.putUChar("REFRESH_RATE", usb_monitor.param[REFRESH_RATE]);
+            }
+            break;
+        case MONITOR_SERIAL_OUTPUT:
+            if (prefs.getUChar("SERIAL_OUTPUT") != usb_monitor.param[MONITOR_SERIAL_OUTPUT])
+            {
+                prefs.putUChar("SERIAL_OUTPUT", usb_monitor.param[MONITOR_SERIAL_OUTPUT]);
+            }
+            break;
+        }
+    }
+    prefs.end();
+}
+
+void EEPROM_read_monitor_setting()
+{
+    Preferences prefs; // 声明Preferences对象
+    prefs.begin("usb_monitor");
+    for (uint8_t i = 0; i < USB_MONITOR_PARAM; i++)
+    {
+        switch (i)
+        {
+        case REFRESH_RATE:
+            usb_monitor.param[REFRESH_RATE] = prefs.getUChar("REFRESH_RATE", 10);
+            break;
+        case MONITOR_SERIAL_OUTPUT:
+            usb_monitor.param[MONITOR_SERIAL_OUTPUT] = prefs.getUChar("SERIAL_OUTPUT", 0);
+            break;
+        }
+    }
+}
+
 void EEPROM_clear_namespace(const char *ns)
 {
     Preferences prefs; // 声明Preferences对象
     prefs.begin(ns);
     prefs.clear();
     prefs.end();
-    Serial.printf("空间 %s 的所有键值对已清除 ", ns);
+    // Serial.printf("空间 %s 的所有键值对已清除 ", ns);
 }

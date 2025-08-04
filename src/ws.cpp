@@ -8,11 +8,11 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
 {
     if (type == WStype_CONNECTED)
     {
-        Serial.println("Client connected");
+        // Serial.println("Client connected");
     }
     else if (type == WStype_DISCONNECTED)
     {
-        Serial.println("Client disconnected");
+        // Serial.println("Client disconnected");
     }
     else if (type == WStype_TEXT)
     {

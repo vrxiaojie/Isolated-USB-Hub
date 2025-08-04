@@ -49,6 +49,7 @@ M_SELECT usb_monitor_menu[]{
 M_SELECT usb_monitor_setting_menu[]{
     {"USB监视器设置"},
     {"~ 刷新率Hz"},
+    {"+ 串口输出数据"},
 };
 
 M_SELECT setting_menu[]{
@@ -316,8 +317,8 @@ void wifi_config_init()
     initSoftAP();
     initDNS();
     initWebServer();
-    Serial.println("scan start");
-    Serial.println("--------->");
+    // Serial.println("scan start");
+    // Serial.println("--------->");
     WiFi.scanNetworks(true); // 异步扫描
 }
 
@@ -1120,12 +1121,6 @@ void switch_proc()
     }
 }
 
-// test
-void set_usb_monitor_param()
-{
-    usb_monitor.param[REFRESH_RATE] = 10; // 刷新率1~10Hz
-}
-
 // 电压测量设置页处理函数
 void usb_monitor_setting_proc()
 {
@@ -1141,6 +1136,12 @@ void usb_monitor_setting_proc()
             break;
         case BTN_ID_LP:
             ui.select[ui.layer] = 0;
+            // 退出菜单时保存
+            if (eeprom.change == true)
+            {
+                eeprom.change = false;
+                EEPROM_write_monitor_setting();
+            }
         case BTN_ID_SP:
             switch (ui.select[ui.layer])
             {
@@ -1151,7 +1152,9 @@ void usb_monitor_setting_proc()
             case 1: // 调整刷新间隔
                 window_value_init("Refresh Rate", REFRESH_RATE, &usb_monitor.param[REFRESH_RATE],
                                   10, 1, 1, usb_monitor_setting_menu, M_USB_MONITOR_SETTING);
-
+                break;
+            case 2: // 串口输出电压电流
+                check_box_m_select(MONITOR_SERIAL_OUTPUT);
                 break;
             }
         }
