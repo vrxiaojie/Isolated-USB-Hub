@@ -46,6 +46,8 @@ void INA226_Task(void *arg)
     {
         if (ulTaskNotifyTake(pdTRUE, portMAX_DELAY) == pdTRUE)
         {
+            if (usb_monitor.param[MONITOR_SERIAL_OUTPUT])
+                Serial.print("USB(volt,curr,power|ch1,2,3,4):"); // 分4个通道，每通道按序显示电压电流功率
             for (uint8_t idx = 0; idx < 4; idx++)
             {
                 if (ina226_data[idx].init)
@@ -54,7 +56,14 @@ void INA226_Task(void *arg)
                     ina226_data[idx].current_mA = ina226_ctrl[idx].getCurrent_mA();
                     ina226_data[idx].power_mW = ina226_data[idx].busVoltage * ina226_data[idx].current_mA;
                 }
+                if (usb_monitor.param[MONITOR_SERIAL_OUTPUT]) // 串口输出电压电流
+                {
+                    Serial.printf("%.2f,%.1f,%.1f,", ina226_data[idx].busVoltage,
+                                  ina226_data[idx].current_mA, ina226_data[idx].power_mW);
+                }
             }
+            if (usb_monitor.param[MONITOR_SERIAL_OUTPUT])
+                Serial.println();
         }
     }
 }

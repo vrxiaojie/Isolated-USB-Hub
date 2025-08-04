@@ -20,4 +20,6 @@ void EEPROM_read_wifi_setting();
 void EEPROM_write_wifi_setting();
 void EEPROM_write_activation();
 bool EEPROM_read_activation();
+void EEPROM_write_monitor_setting();
+void EEPROM_read_monitor_setting();
 #endif

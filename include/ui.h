@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include "oled.h"
 
-#define PROG_VERSION "- 版本:v1.0.2"
+#define PROG_VERSION "- 版本:v1.1.4"
 // UI变量
 #define UI_DEPTH 20  // 最深层级数
 #define UI_MNUMB 100 // 菜单数量
@@ -146,11 +146,12 @@ extern list_t list;
 #define USB_MONITOR_LIST_U_S 94                    // 列表上边距
 #define USB_MONITOR_TEXT_BG_U_S 53                 // 文字背景框上边距
 #define USB_MONITOR_TEXT_BG_H 33                   // 文字背景框高度
-#define USB_MONITOR_PARAM 10                       // USB监视器设置数量
+#define USB_MONITOR_PARAM 2                        // USB监视器设置数量
 
 enum
 {
-    REFRESH_RATE // 数据刷新率Hz
+    REFRESH_RATE,         // 数据刷新率Hz
+    MONITOR_SERIAL_OUTPUT // 电压电流数据串口输出
 };
 
 struct usb_monitor_t

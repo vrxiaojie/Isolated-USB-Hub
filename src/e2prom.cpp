@@ -304,6 +304,49 @@ void EEPROM_write_activation()
     prefs.end();
 }
 
+void EEPROM_write_monitor_setting()
+{
+    Preferences prefs; // 声明Preferences对象
+    prefs.begin("usb_monitor");
+    for (uint8_t i = 0; i < USB_MONITOR_PARAM; i++)
+    {
+        switch (i)
+        {
+        case REFRESH_RATE:
+            if (prefs.getUChar("REFRESH_RATE") != usb_monitor.param[REFRESH_RATE])
+            {
+                prefs.putUChar("REFRESH_RATE", usb_monitor.param[REFRESH_RATE]);
+            }
+            break;
+        case MONITOR_SERIAL_OUTPUT:
+            if (prefs.getUChar("SERIAL_OUTPUT") != usb_monitor.param[MONITOR_SERIAL_OUTPUT])
+            {
+                prefs.putUChar("SERIAL_OUTPUT", usb_monitor.param[MONITOR_SERIAL_OUTPUT]);
+            }
+            break;
+        }
+    }
+    prefs.end();
+}
+
+void EEPROM_read_monitor_setting()
+{
+    Preferences prefs; // 声明Preferences对象
+    prefs.begin("usb_monitor");
+    for (uint8_t i = 0; i < USB_MONITOR_PARAM; i++)
+    {
+        switch (i)
+        {
+        case REFRESH_RATE:
+            usb_monitor.param[REFRESH_RATE] = prefs.getUChar("REFRESH_RATE", 10);
+            break;
+        case MONITOR_SERIAL_OUTPUT:
+            usb_monitor.param[MONITOR_SERIAL_OUTPUT] = prefs.getUChar("SERIAL_OUTPUT", 0);
+            break;
+        }
+    }
+}
+
 void EEPROM_clear_namespace(const char *ns)
 {
     Preferences prefs; // 声明Preferences对象

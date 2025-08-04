@@ -35,7 +35,7 @@ void setup()
 
   EEPROM_read_ui_setting();
   EEPROM_read_wifi_setting();
-  set_usb_monitor_param();
+  EEPROM_read_monitor_setting();
   ui_init();
   btn_init();
   switch_pin_init();
