@@ -184,7 +184,7 @@ void EEPROM_read_ui_setting()
     prefs.begin("ui");
     if (prefs.getBool("eeprom_init", false) == false) // 新设备没有初始化过，将会自动初始化并存入设置
     {
-        Serial.println("设置未初始化");
+        // Serial.println("设置未初始化");
         prefs.putBool("eeprom_init", true);
         ui_param_init();
         EEPROM_write_ui_setting(false);
@@ -310,5 +310,5 @@ void EEPROM_clear_namespace(const char *ns)
     prefs.begin(ns);
     prefs.clear();
     prefs.end();
-    Serial.printf("空间 %s 的所有键值对已清除 ", ns);
+    // Serial.printf("空间 %s 的所有键值对已清除 ", ns);
 }

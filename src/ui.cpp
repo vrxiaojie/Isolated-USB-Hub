@@ -316,8 +316,8 @@ void wifi_config_init()
     initSoftAP();
     initDNS();
     initWebServer();
-    Serial.println("scan start");
-    Serial.println("--------->");
+    // Serial.println("scan start");
+    // Serial.println("--------->");
     WiFi.scanNetworks(true); // 异步扫描
 }
 
