@@ -19,6 +19,7 @@ M_SELECT main_menu[]{
     {"Monitor"},
     {"WiFi"},
     {"Setting"},
+    {"OTA"},
 };
 // 小标题
 M_SELECT main_menu_exp[]{
@@ -27,6 +28,7 @@ M_SELECT main_menu_exp[]{
     {"[ 监测电压 电流 功率 ]"},
     {"[ 查看/连接/设置WiFi ]"},
     {"[ 修改设置 ]"},
+    {"[ OTA在线升级 ]"},
 };
 
 M_SELECT switch_menu[]{
@@ -76,7 +78,6 @@ M_SELECT setting_menu[]{
 M_SELECT about_menu[]{
     {"[ ESP32-HUB ]"},
     {"- 作者VRxiaojie"},
-    {PROG_VERSION},
     {"- 主控:ESP32S3"},
     {"- SRAM: 8MB"},
     {"- Flash: 8MB"},
@@ -1066,6 +1067,10 @@ void main_proc()
                 ui.index = M_SETTING;
                 ui.state = S_LAYER_IN;
                 break;
+            case 5:
+                ui.index = M_OTA;
+                ui.state = S_LAYER_IN;
+                break;
             }
         }
         if (!tile.select_flag && ui.init)
@@ -1556,6 +1561,27 @@ void wifi_proc()
     }
 }
 
+void ota_proc()
+{
+    if (btn.pressed)
+    {
+        btn.pressed = false;
+        switch (btn.id)
+        {
+        case BTN_ID_LP:
+            ui.select[ui.layer] = 0;
+        case BTN_ID_SP:
+            ui.index = M_MAIN;
+            ui.state = S_LAYER_OUT;
+            break;
+        }
+    }
+    u8g2.setDrawColor(1);
+    u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
+    u8g2.drawUTF8(0, 16, "OTA升级");
+    u8g2.sendBuffer();
+}
+
 void ui_proc()
 {
     u8g2.sendBuffer();
@@ -1616,6 +1642,9 @@ void ui_proc()
             break;
         case M_ABOUT:
             about_proc();
+            break;
+        case M_OTA:
+            ota_proc();
             break;
         }
     }

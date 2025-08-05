@@ -11,6 +11,7 @@
 #include "ina226_data.h"
 #include "Wifi_Config.h"
 #include "encrypt.h"
+#include "OTA.h"
 
 void setup()
 {
