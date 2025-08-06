@@ -302,7 +302,7 @@ void wifi_conn_init()
     // 如果wifi已连接，则直接关闭wifi
     if (WiFi.status() == WL_CONNECTED)
     {
-        wifi_menu[3].m_select = "连接WiFi";
+        wifi_menu[3].m_select = "- 连接WiFi";
         WiFi.mode(WIFI_OFF);
         wifi.wifi_power = false;
     }
@@ -1340,6 +1340,7 @@ void about_proc()
 
 void wifi_conn_proc()
 {
+    char buffer[20];
     if (btn.pressed)
     {
         btn.pressed = false;
@@ -1364,10 +1365,10 @@ void wifi_conn_proc()
             u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
             u8g2.drawUTF8(0, 16, "连接成功!");
             u8g2.drawUTF8(0, 32, WiFi.SSID().c_str()); // WiFi SSID
-            u8g2.setCursor(0, 48);
-            u8g2.printf("ip : %s", WiFi.localIP().toString()); // IP
-            u8g2.setCursor(0, 64);
-            u8g2.printf("DNS : %s", WiFi.dnsIP().toString()); // DNS
+            snprintf(buffer, sizeof(buffer), "ip: %s", WiFi.localIP().toString().c_str());
+            u8g2.drawUTF8(0, 48, buffer);
+            snprintf(buffer, sizeof(buffer), "DNS: %s", WiFi.dnsIP().toString().c_str());
+            u8g2.drawUTF8(0, 64, buffer);
             u8g2.drawUTF8(0, 80, "长按返回主菜单");
             u8g2.sendBuffer();
         }
@@ -1397,6 +1398,7 @@ void wifi_conn_proc()
 
 void wifi_info_proc()
 {
+    char buffer[20];
     if (btn.pressed)
     {
         btn.pressed = false;
@@ -1417,16 +1419,17 @@ void wifi_info_proc()
         u8g2.drawUTF8(0, 32, WiFi.SSID().c_str()); // WiFi SSID
     else
         u8g2.drawUTF8(0, 32, "WiFi未连接!");
-    u8g2.setCursor(0, 48);
-    u8g2.printf("ip : %s", WiFi.localIP().toString()); // IP
-    u8g2.setCursor(0, 64);
-    u8g2.printf("DNS : %s", WiFi.dnsIP().toString()); // DNS
+    snprintf(buffer, sizeof(buffer), "ip: %s", WiFi.localIP().toString().c_str());
+    u8g2.drawUTF8(0, 48, buffer);
+    snprintf(buffer, sizeof(buffer), "DNS: %s", WiFi.dnsIP().toString().c_str());
+    u8g2.drawUTF8(0, 64, buffer);
     u8g2.drawUTF8(0, 80, "长按返回");
     u8g2.sendBuffer();
 }
 
 void wifi_config_proc()
 {
+    char buffer[20];
     if (btn.pressed)
     {
         btn.pressed = false;
@@ -1478,10 +1481,10 @@ void wifi_config_proc()
                 u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
                 u8g2.drawUTF8(0, 16, "连接成功!");
                 u8g2.drawUTF8(0, 32, WiFi.SSID().c_str()); // WiFi SSID
-                u8g2.setCursor(0, 48);
-                u8g2.printf("ip : %s", WiFi.localIP().toString()); // IP
-                u8g2.setCursor(0, 64);
-                u8g2.printf("DNS : %s", WiFi.dnsIP().toString()); // DNS
+                snprintf(buffer, sizeof(buffer), "ip: %s", WiFi.localIP().toString().c_str());
+                u8g2.drawUTF8(0, 48, buffer);
+                snprintf(buffer, sizeof(buffer), "DNS: %s", WiFi.dnsIP().toString().c_str());
+                u8g2.drawUTF8(0, 64, buffer);
                 u8g2.drawUTF8(0, 80, "长按返回");
                 u8g2.sendBuffer();
             }
