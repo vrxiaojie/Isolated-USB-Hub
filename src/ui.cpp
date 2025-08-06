@@ -23,7 +23,7 @@ M_SELECT main_menu[]{
 };
 // 小标题
 M_SELECT main_menu_exp[]{
-    {"[ 进入睡眠模式 ]"},
+    {"[ 进入低功耗睡眠模式 ]"},
     {"[ 控制USB的开关 ]"},
     {"[ 监测电压 电流 功率 ]"},
     {"[ 查看/连接/设置WiFi ]"},
@@ -258,6 +258,8 @@ void sleep_param_init()
     {
         WiFi.mode(WIFI_OFF);
     }
+    // 设置CPU频率80MHz
+    setCpuFrequencyMhz(80);
     ui.state = S_NONE;
     ui.sleep = true;
 }
@@ -1045,6 +1047,8 @@ void sleep_proc()
             {
                 WiFi.begin();
             }
+            // 恢复CPU频率为240MHz
+            setCpuFrequencyMhz(240);
         }
         delay(100);
     }
