@@ -136,10 +136,13 @@ bool performOTA(const char *url)
                     u8g2.drawUTF8(0, 16, "【升级中,请勿断电】");
                     u8g2.drawUTF8(0, 32, "开始写入固件");
                     u8g2.setFont(u8g2_font_helvB24_tr);
-                    u8g2.setCursor(34, 70);
+                    if (percent < 10) // 一位数时保持居中
+                        u8g2.setCursor(42, 80);
+                    else if (percent < 100)
+                        u8g2.setCursor(34, 80);
                     u8g2.printf("%d%%", percent);
-                    u8g2.drawRFrame(20, 85, 88, 10, 1);                                      // 绘制进度条外框
-                    u8g2.drawBox(20 + 2, 85 + 2, (float)percent / 100.0 * (88 - 4), 10 - 4); // 绘制进度条
+                    u8g2.drawRFrame(20, 95, 88, 10, 1);                                      // 绘制进度条外框
+                    u8g2.drawBox(20 + 2, 95 + 2, (float)percent / 100.0 * (88 - 4), 10 - 4); // 绘制进度条
                     u8g2.sendBuffer();
 
                     lastProgress = millis();
@@ -153,7 +156,7 @@ bool performOTA(const char *url)
             // 喂狗，防止看门狗重启
             yield();
         }
-
+        u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
         if (written != contentLength)
         {
             // Serial.println("下载不完整: " + String(written) + "/" + String(contentLength));
