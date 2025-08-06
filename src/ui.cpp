@@ -19,6 +19,7 @@ M_SELECT main_menu[]{
     {"Monitor"},
     {"WiFi"},
     {"Setting"},
+    {"OTA"},
 };
 // 小标题
 M_SELECT main_menu_exp[]{
@@ -27,6 +28,7 @@ M_SELECT main_menu_exp[]{
     {"[ 监测电压 电流 功率 ]"},
     {"[ 查看/连接/设置WiFi ]"},
     {"[ 修改设置 ]"},
+    {"[ OTA在线升级 ]"},
 };
 
 M_SELECT switch_menu[]{
@@ -76,7 +78,6 @@ M_SELECT setting_menu[]{
 M_SELECT about_menu[]{
     {"[ ESP32-HUB ]"},
     {"- 作者VRxiaojie"},
-    {PROG_VERSION},
     {"- 主控:ESP32S3"},
     {"- SRAM: 8MB"},
     {"- Flash: 8MB"},
@@ -93,6 +94,13 @@ M_SELECT wifi_menu[]{
     {"- WiFi配网"},
     {"- 重置WiFi"},
 
+};
+
+M_SELECT ota_menu[]{
+    {"[是否进行OTA升级?]"},
+    {" 确定"},
+    {" 取消"},
+    {""},
 };
 /************************************* 页面变量 *************************************/
 
@@ -220,6 +228,7 @@ void ui_init()
     ui.num[M_SETTING] = sizeof(setting_menu) / sizeof(M_SELECT);
     ui.num[M_ABOUT] = sizeof(about_menu) / sizeof(M_SELECT);
     ui.num[M_WIFI] = sizeof(wifi_menu) / sizeof(M_SELECT);
+    ui.num[M_OTA] = sizeof(ota_menu) / sizeof(M_SELECT);
 }
 
 /********************************* 分页面初始化函数 ********************************/
@@ -322,6 +331,14 @@ void wifi_config_init()
     WiFi.scanNetworks(true); // 异步扫描
 }
 
+// OTA页面显示前的初始化
+void ota_param_init()
+{
+    static char t[20];
+    sprintf(t, "当前版本:v%s", FIRMWARE_VERSION);
+    ota_menu[3].m_select = t;
+}
+
 /********************************** 通用初始化函数 *********************************/
 
 /*
@@ -373,6 +390,9 @@ void layer_init_in()
     case M_SETTING:
         setting_param_init();
         break; // 主菜单进入设置页，单选框初始化
+    case M_OTA:
+        ota_param_init();
+        break;
     }
 }
 
@@ -1066,6 +1086,10 @@ void main_proc()
                 ui.index = M_SETTING;
                 ui.state = S_LAYER_IN;
                 break;
+            case 5:
+                ui.index = M_OTA;
+                ui.state = S_LAYER_IN;
+                break;
             }
         }
         if (!tile.select_flag && ui.init)
@@ -1556,6 +1580,56 @@ void wifi_proc()
     }
 }
 
+void ota_proc()
+{
+    list_show(ota_menu, M_OTA);
+    if (btn.pressed)
+    {
+        btn.pressed = false;
+        switch (btn.id)
+        {
+        case BTN_ID_CW:
+        case BTN_ID_CC:
+            list_rotate_switch();
+            break;
+        case BTN_ID_LP:
+            ui.select[ui.layer] = 0;
+        case BTN_ID_SP:
+            switch (ui.select[ui.layer])
+            {
+            case 0:
+                ui.index = M_MAIN;
+                ui.state = S_LAYER_OUT;
+                break;
+            case 1: // 确定
+                if (WL_CONNECTED == WiFi.status())
+                {
+                    // 如果有新版本，则写入OTA标志位并重启
+                    if (checkForOTA())
+                    {
+                        EEPROM_write_ota_flag(true);
+                        ESP.restart();
+                    }
+                    else
+                    {
+                        ui.index = M_MAIN;
+                        ui.state = S_LAYER_OUT;
+                    }
+                }
+                else
+                {
+                    window_msg_init("WiFi未连接!", "请检查网络连接");
+                }
+                break;
+            case 2: // 取消
+                ui.index = M_MAIN;
+                ui.state = S_LAYER_OUT;
+                break;
+            }
+        }
+    }
+}
+
 void ui_proc()
 {
     u8g2.sendBuffer();
@@ -1616,6 +1690,9 @@ void ui_proc()
             break;
         case M_ABOUT:
             about_proc();
+            break;
+        case M_OTA:
+            ota_proc();
             break;
         }
     }

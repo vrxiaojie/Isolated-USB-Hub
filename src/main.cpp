@@ -11,6 +11,7 @@
 #include "ina226_data.h"
 #include "Wifi_Config.h"
 #include "encrypt.h"
+#include "OTA.h"
 
 void setup()
 {
@@ -32,6 +33,8 @@ void setup()
     u8g2.sendBuffer();
     activation_loop();
   }
+  // 检查是否进入OTA更新模式
+  checkOTAReady();
 
   EEPROM_read_ui_setting();
   EEPROM_read_wifi_setting();

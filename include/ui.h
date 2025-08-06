@@ -2,8 +2,8 @@
 #define UI_H_
 #include <Arduino.h>
 #include "oled.h"
+#include "OTA.h"
 
-#define PROG_VERSION "- 版本:v1.1.4"
 // UI变量
 #define UI_DEPTH 20  // 最深层级数
 #define UI_MNUMB 100 // 菜单数量
@@ -59,6 +59,7 @@ enum
     M_WIFI_CONFIG, // wifi配网页
     M_SETTING,
     M_ABOUT,
+    M_OTA,
 };
 
 // 状态，初始化标签

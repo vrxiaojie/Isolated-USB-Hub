@@ -22,4 +22,6 @@ void EEPROM_write_activation();
 bool EEPROM_read_activation();
 void EEPROM_write_monitor_setting();
 void EEPROM_read_monitor_setting();
+void EEPROM_write_ota_flag(bool flag);
+bool EEPROM_read_ota_flag();
 #endif
