@@ -105,7 +105,6 @@ bool performOTA(const char *url)
         unsigned long lastProgress = 0;
 
         u8g2.drawUTF8(0, 32, "开始写入固件");
-
         while (http.connected() && (written < contentLength))
         {
             size_t available = stream->available();
@@ -132,9 +131,17 @@ bool performOTA(const char *url)
                 if (millis() - lastProgress > 100)
                 {
                     int percent = getProgress(written, contentLength);
-                    u8g2.setCursor(0, 48);
+                    u8g2.clearBuffer();
+                    u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
+                    u8g2.drawUTF8(0, 16, "【升级中,请勿断电】");
+                    u8g2.drawUTF8(0, 32, "开始写入固件");
+                    u8g2.setFont(u8g2_font_helvB24_tr);
+                    u8g2.setCursor(34, 70);
                     u8g2.printf("%d%%", percent);
+                    u8g2.drawRFrame(20, 85, 88, 10, 1);                                      // 绘制进度条外框
+                    u8g2.drawBox(20 + 2, 85 + 2, (float)percent / 100.0 * (88 - 4), 10 - 4); // 绘制进度条
                     u8g2.sendBuffer();
+
                     lastProgress = millis();
                 }
             }
