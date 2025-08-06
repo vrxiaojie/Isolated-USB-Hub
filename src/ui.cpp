@@ -334,8 +334,9 @@ void wifi_config_init()
 // OTA页面显示前的初始化
 void ota_param_init()
 {
-    char *ver = "当前版本:v";
-    ota_menu[3].m_select = strcat(ver, FIRMWARE_VERSION);
+    static char t[20];
+    sprintf(t, "当前版本:v%s", FIRMWARE_VERSION);
+    ota_menu[3].m_select = t;
 }
 
 /********************************** 通用初始化函数 *********************************/
