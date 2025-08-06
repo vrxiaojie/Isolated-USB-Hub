@@ -95,6 +95,13 @@ M_SELECT wifi_menu[]{
     {"- 重置WiFi"},
 
 };
+
+M_SELECT ota_menu[]{
+    {"[是否进行OTA升级?]"},
+    {" 确定"},
+    {" 取消"},
+    {""},
+};
 /************************************* 页面变量 *************************************/
 
 // 修改为默认进入主菜单 原：uint8_t index = M_SLEEP;
@@ -221,6 +228,7 @@ void ui_init()
     ui.num[M_SETTING] = sizeof(setting_menu) / sizeof(M_SELECT);
     ui.num[M_ABOUT] = sizeof(about_menu) / sizeof(M_SELECT);
     ui.num[M_WIFI] = sizeof(wifi_menu) / sizeof(M_SELECT);
+    ui.num[M_OTA] = sizeof(ota_menu) / sizeof(M_SELECT);
 }
 
 /********************************* 分页面初始化函数 ********************************/
@@ -323,6 +331,13 @@ void wifi_config_init()
     WiFi.scanNetworks(true); // 异步扫描
 }
 
+// OTA页面显示前的初始化
+void ota_param_init()
+{
+    char *ver = "当前版本:v";
+    ota_menu[3].m_select = strcat(ver, FIRMWARE_VERSION);
+}
+
 /********************************** 通用初始化函数 *********************************/
 
 /*
@@ -374,6 +389,9 @@ void layer_init_in()
     case M_SETTING:
         setting_param_init();
         break; // 主菜单进入设置页，单选框初始化
+    case M_OTA:
+        ota_param_init();
+        break;
     }
 }
 
@@ -1563,23 +1581,42 @@ void wifi_proc()
 
 void ota_proc()
 {
+    list_show(ota_menu, M_OTA);
     if (btn.pressed)
     {
         btn.pressed = false;
         switch (btn.id)
         {
+        case BTN_ID_CW:
+        case BTN_ID_CC:
+            list_rotate_switch();
+            break;
         case BTN_ID_LP:
             ui.select[ui.layer] = 0;
         case BTN_ID_SP:
-            ui.index = M_MAIN;
-            ui.state = S_LAYER_OUT;
-            break;
+            switch (ui.select[ui.layer])
+            {
+            case 0:
+                ui.index = M_MAIN;
+                ui.state = S_LAYER_OUT;
+                break;
+            case 1: // 确定
+                if (WL_CONNECTED == WiFi.status())
+                {
+                    checkForOTA();
+                }
+                else
+                {
+                    window_msg_init("WiFi未连接!", "请检查网络连接");
+                }
+                break;
+            case 2: // 取消
+                ui.index = M_MAIN;
+                ui.state = S_LAYER_OUT;
+                break;
+            }
         }
     }
-    u8g2.setDrawColor(1);
-    u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
-    u8g2.drawUTF8(0, 16, "OTA升级");
-    u8g2.sendBuffer();
 }
 
 void ui_proc()

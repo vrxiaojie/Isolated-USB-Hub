@@ -2,13 +2,14 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include <Update.h>
+#include "ui.h"
 
 // OTA更新信息URL
-const char *json_url = "https://raw.githubusercontent.com/vrxiaojie/USBHub-OTA/refs/heads/main/version.json";
+const char *json_url = "https://raw.gitcode.com/VRxiaojie/USBHUB-OTA/raw/main/version.json";
 
 WiFiClientSecure client;
 
-void printProgress(size_t progress, size_t total)
+int printProgress(size_t progress, size_t total)
 {
     static int lastPercent = -1;
     int percent = (progress * 100) / total;
@@ -17,6 +18,7 @@ void printProgress(size_t progress, size_t total)
     {
         Serial.printf("进度: %d%%\n", percent);
         lastPercent = percent;
+        return percent;
     }
 }
 
@@ -29,7 +31,20 @@ bool performOTA(const char *url)
     // *** 关键改动 2 (同样应用在这里) ***
     http.begin(client, url);
 
+    const char *headerKeys[] = {"Location"};
+    http.collectHeaders(headerKeys, 1); // 1 表示我们要收集的头的数量
+
     int httpCode = http.GET();
+
+    if (httpCode == HTTP_CODE_MOVED_PERMANENTLY || httpCode == HTTP_CODE_FOUND)
+    {
+        String newUrl = http.header("Location");
+        Serial.println("Redirecting to: " + newUrl);
+        http.end();                         // 关闭旧连接
+        http.begin(client, newUrl.c_str()); // 使用新 URL 开始新连接
+        httpCode = http.GET();              // 再次发送请求
+    }
+
     if (httpCode == HTTP_CODE_OK)
     {
         int contentLength = http.getSize();
@@ -78,10 +93,10 @@ bool performOTA(const char *url)
 
                 written += bytesWritten;
 
-                // 显示进度（每2秒或每10%显示一次）
-                if (millis() - lastProgress > 2000)
+                // 显示进度（每秒显示一次）
+                if (millis() - lastProgress > 1000)
                 {
-                    printProgress(written, contentLength);
+                    int percent = printProgress(written, contentLength);
                     lastProgress = millis();
                 }
             }
@@ -166,15 +181,21 @@ bool performOTA(const char *url)
     else
     {
         Serial.printf("Failed to download firmware. HTTP code: %d\n", httpCode);
+        return false;
     }
     http.end();
+    return false;
 }
 
 // 检查并执行OTA更新
 void checkForOTA()
 {
+    u8g2.clearBuffer();
+    u8g2.setDrawColor(1);
+    u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
     Serial.println("Checking for new firmware...");
-
+    u8g2.drawUTF8(0, 16, "检查更新中...");
+    u8g2.sendBuffer();
     client.setInsecure();
 
     HTTPClient http;
@@ -214,6 +235,10 @@ void checkForOTA()
                 if (performOTA(download_url))
                 {
                     ESP.restart();
+                }
+                else
+                {
+                    return;
                 }
             }
             else
