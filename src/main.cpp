@@ -33,6 +33,8 @@ void setup()
     u8g2.sendBuffer();
     activation_loop();
   }
+  // 检查是否进入OTA更新模式
+  checkOTAReady();
 
   EEPROM_read_ui_setting();
   EEPROM_read_wifi_setting();

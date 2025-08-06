@@ -1603,7 +1603,9 @@ void ota_proc()
             case 1: // 确定
                 if (WL_CONNECTED == WiFi.status())
                 {
-                    checkForOTA();
+                    // 写入OTA标志位并重启
+                    EEPROM_write_ota_flag(true);
+                    ESP.restart();
                 }
                 else
                 {

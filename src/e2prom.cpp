@@ -347,6 +347,21 @@ void EEPROM_read_monitor_setting()
     }
 }
 
+void EEPROM_write_ota_flag(bool flag)
+{
+    Preferences prefs; // 声明Preferences对象
+    prefs.begin("ota");
+    prefs.putBool("ota_ready", flag);
+    prefs.end();
+}
+
+bool EEPROM_read_ota_flag()
+{
+    Preferences prefs; // 声明Preferences对象
+    prefs.begin("ota");
+    return prefs.getBool("ota_ready", false);
+}
+
 void EEPROM_clear_namespace(const char *ns)
 {
     Preferences prefs; // 声明Preferences对象

@@ -3,7 +3,7 @@
 #include <ArduinoJson.h>
 #include <Update.h>
 #include "ui.h"
-
+#include "e2prom.h"
 // OTA更新信息URL
 const char *json_url = "https://raw.gitcode.com/VRxiaojie/USBHUB-OTA/raw/main/version.json";
 
@@ -68,7 +68,7 @@ bool performOTA(const char *url)
         WiFiClient *stream = http.getStreamPtr();
 
         size_t written = 0;
-        uint8_t buff[512] = {0}; // 使用较小的缓冲区以节省内存
+        uint8_t buff[1024] = {0}; // 缓冲区
         unsigned long lastProgress = 0;
 
         Serial.println("开始写入固件...");
@@ -119,7 +119,7 @@ bool performOTA(const char *url)
             return false;
         }
 
-        if (Update.end(true))
+        if (Update.end())
         {
             Serial.println("固件验证通过，OTA升级完成");
             http.end();
@@ -191,10 +191,8 @@ bool performOTA(const char *url)
 void checkForOTA()
 {
     u8g2.clearBuffer();
-    u8g2.setDrawColor(1);
-    u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
     Serial.println("Checking for new firmware...");
-    u8g2.drawUTF8(0, 16, "检查更新中...");
+    u8g2.drawUTF8(0, 16, "检查更新中,请勿断电");
     u8g2.sendBuffer();
     client.setInsecure();
 
@@ -234,6 +232,7 @@ void checkForOTA()
                 const char *download_url = doc["download_url"];
                 if (performOTA(download_url))
                 {
+                    Serial.println("restart..");
                     ESP.restart();
                 }
                 else
@@ -256,4 +255,23 @@ void checkForOTA()
         Serial.printf("[HTTP] Unable to connect to server\n");
     }
     http.end();
+    return;
+}
+
+void checkOTAReady()
+{
+    if (EEPROM_read_ota_flag() == true)
+    {
+        u8g2.clearBuffer();
+        u8g2.setFont(u8g2_font_wqy12_t_gb2312a);
+        u8g2.setDrawColor(1);
+        EEPROM_write_ota_flag(false);
+        WiFi.begin();
+        while (WiFi.status() != WL_CONNECTED)
+        {
+            u8g2.drawUTF8(0, 16, "连接WiFi中,请稍候...");
+            u8g2.sendBuffer();
+        }
+        checkForOTA();
+    }
 }
