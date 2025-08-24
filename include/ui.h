@@ -247,7 +247,7 @@ void tile_param_init();
 void ui_proc();
 void oled_init();
 void set_usb_monitor_param();
-void window_msg_init(char title[], char sub_title[]);
-void window_value_init(char title[], uint8_t select, uint8_t *value, uint8_t max, uint8_t min, uint8_t step, MENU *bg, uint8_t index);
+void window_msg_init(const char *title, const char *sub_title);
+void window_value_init(const char *title, uint8_t select, uint8_t *value, uint8_t max, uint8_t min, uint8_t step, MENU *bg, uint8_t index);
 
 #endif

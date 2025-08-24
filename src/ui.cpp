@@ -164,7 +164,7 @@ void check_box_s_select(uint8_t val, uint8_t pos)
 }
 
 // 弹窗数值初始化
-void window_value_init(char title[], uint8_t select, uint8_t *value, uint8_t max, uint8_t min, uint8_t step, MENU *bg, uint8_t index)
+void window_value_init(const char *title, uint8_t select, uint8_t *value, uint8_t max, uint8_t min, uint8_t step, MENU *bg, uint8_t index)
 {
     win.is_msg = false;
     strcpy(win.title, title);
@@ -180,7 +180,7 @@ void window_value_init(char title[], uint8_t select, uint8_t *value, uint8_t max
 }
 
 // 弹窗消息初始化
-void window_msg_init(char title[], char sub_title[])
+void window_msg_init(const char *title, const char *sub_title)
 {
     win.is_msg = true;
     strcpy(win.title, title);
@@ -1178,7 +1178,7 @@ void usb_monitor_setting_proc()
                 ui.state = S_LAYER_OUT;
                 break;
             case 1: // 调整刷新间隔
-                window_value_init((char *)"Refresh Rate", REFRESH_RATE, &usb_monitor.param[REFRESH_RATE],
+                window_value_init("Refresh Rate", REFRESH_RATE, &usb_monitor.param[REFRESH_RATE],
                                   10, 1, 1, usb_monitor_setting_menu, M_USB_MONITOR_SETTING);
                 break;
             case 2: // 串口输出电压电流
@@ -1254,31 +1254,31 @@ void setting_proc()
 
             // 弹出窗口，参数初始化：标题，参数名，参数值，最大值，最小值，步长，背景列表名，背景列表标签
             case 1:
-                window_value_init((char *)"Disp Bri", DISP_BRI, &ui.param[DISP_BRI], 255, 0, 5, setting_menu, M_SETTING);
+                window_value_init("Disp Bri", DISP_BRI, &ui.param[DISP_BRI], 255, 0, 5, setting_menu, M_SETTING);
                 break;
             case 2:
-                window_value_init((char *)"Tile Ani", TILE_ANI, &ui.param[TILE_ANI], 100, 10, 1, setting_menu, M_SETTING);
+                window_value_init("Tile Ani", TILE_ANI, &ui.param[TILE_ANI], 100, 10, 1, setting_menu, M_SETTING);
                 break;
             case 3:
-                window_value_init((char *)"List Ani", LIST_ANI, &ui.param[LIST_ANI], 100, 10, 1, setting_menu, M_SETTING);
+                window_value_init("List Ani", LIST_ANI, &ui.param[LIST_ANI], 100, 10, 1, setting_menu, M_SETTING);
                 break;
             case 4:
-                window_value_init((char *)"Win Ani", WIN_ANI, &ui.param[WIN_ANI], 100, 10, 1, setting_menu, M_SETTING);
+                window_value_init("Win Ani", WIN_ANI, &ui.param[WIN_ANI], 100, 10, 1, setting_menu, M_SETTING);
                 break;
             case 5:
-                window_value_init((char *)"Spot Ani", SPOT_ANI, &ui.param[SPOT_ANI], 100, 10, 1, setting_menu, M_SETTING);
+                window_value_init("Spot Ani", SPOT_ANI, &ui.param[SPOT_ANI], 100, 10, 1, setting_menu, M_SETTING);
                 break;
             case 6:
-                window_value_init((char *)"Tag Ani", TAG_ANI, &ui.param[TAG_ANI], 100, 10, 1, setting_menu, M_SETTING);
+                window_value_init("Tag Ani", TAG_ANI, &ui.param[TAG_ANI], 100, 10, 1, setting_menu, M_SETTING);
                 break;
             case 7:
-                window_value_init((char *)"Fade Ani", FADE_ANI, &ui.param[FADE_ANI], 255, 0, 1, setting_menu, M_SETTING);
+                window_value_init("Fade Ani", FADE_ANI, &ui.param[FADE_ANI], 255, 0, 1, setting_menu, M_SETTING);
                 break;
             case 8:
-                window_value_init((char *)"Btn SPT", BTN_SPT, &ui.param[BTN_SPT], 255, 0, 1, setting_menu, M_SETTING);
+                window_value_init("Btn SPT", BTN_SPT, &ui.param[BTN_SPT], 255, 0, 1, setting_menu, M_SETTING);
                 break;
             case 9:
-                window_value_init((char *)"Btn LPT", BTN_LPT, &ui.param[BTN_LPT], 255, 0, 1, setting_menu, M_SETTING);
+                window_value_init("Btn LPT", BTN_LPT, &ui.param[BTN_LPT], 255, 0, 1, setting_menu, M_SETTING);
                 break;
 
             // 多选框
@@ -1307,7 +1307,7 @@ void setting_proc()
             case 16:
                 ui_param_init();
                 EEPROM_write_ui_setting(false); // 初始化所有UI设置
-                window_msg_init((char *)"UI设置", (char *)"重置成功!");
+                window_msg_init("UI设置", "重置成功!");
                 break;
             }
         }
@@ -1575,11 +1575,11 @@ void wifi_proc()
             case 6: // 重置WiFi
                 if (restoreWiFi())
                 {
-                    wifi_menu[3].m_select = (char *)"- 断开WiFi";
-                    window_msg_init((char *)"WiFi重置成功", (char *)"");
+                    wifi_menu[3].m_select = "- 断开WiFi";
+                    window_msg_init("WiFi重置成功", "");
                 }
                 else
-                    window_msg_init((char *)"WiFi重置失败", (char *)"请重试");
+                    window_msg_init("WiFi重置失败", "请重试");
                 break;
             }
             break;
@@ -1625,7 +1625,7 @@ void ota_proc()
                 }
                 else
                 {
-                    window_msg_init((char *)"WiFi未连接!", (char *)"请检查网络连接");
+                    window_msg_init("WiFi未连接!", "请检查网络连接");
                 }
                 break;
             case 2: // 取消
