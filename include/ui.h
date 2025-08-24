@@ -75,7 +75,7 @@ enum
 // 菜单结构体
 typedef struct MENU
 {
-    char *m_select;
+    const char *m_select;
 } M_SELECT;
 
 extern M_SELECT main_menu[];

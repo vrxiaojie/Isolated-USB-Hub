@@ -123,25 +123,25 @@ void OVC_detect_Task(void *args)
         {
             // 过流后立即切断该路供电，需手动恢复
             switch_ctrl(SW1, LOW);
-            window_msg_init("USB1", "过流保护");
+            window_msg_init((char*)"USB1", (char*)"过流保护");
             // Serial.println("USB1过流");
         }
         if (digitalRead(OVC2) == LOW)
         {
             switch_ctrl(SW2, LOW);
-            window_msg_init("USB2", "过流保护");
+            window_msg_init((char*)"USB2", (char*)"过流保护");
             // Serial.println("USB2过流");
         }
         if (digitalRead(OVC3) == LOW)
         {
             switch_ctrl(SW3, LOW);
-            window_msg_init("USB3", "过流保护");
+            window_msg_init((char*)"USB3", (char*)"过流保护");
             // Serial.println("USB3过流");
         }
         if (digitalRead(OVC4) == LOW)
         {
             switch_ctrl(SW4, LOW);
-            window_msg_init("USB4", "过流保护");
+            window_msg_init((char*)"USB4", (char*)"过流保护");
             // Serial.println("USB4过流");
         }
         delay(100);
