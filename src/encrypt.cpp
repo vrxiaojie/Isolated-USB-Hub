@@ -35,7 +35,7 @@ void send_mac()
     esp_efuse_mac_get_default(mac);
     for (int i = 0; i < 6; i++)
     {
-        Serial.printf("%X", mac[i]);
+        Serial.printf("%02X", mac[i]);
     }
     Serial.println();
 }

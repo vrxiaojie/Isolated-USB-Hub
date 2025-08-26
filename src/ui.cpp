@@ -164,7 +164,7 @@ void check_box_s_select(uint8_t val, uint8_t pos)
 }
 
 // 弹窗数值初始化
-void window_value_init(char title[], uint8_t select, uint8_t *value, uint8_t max, uint8_t min, uint8_t step, MENU *bg, uint8_t index)
+void window_value_init(const char *title, uint8_t select, uint8_t *value, uint8_t max, uint8_t min, uint8_t step, MENU *bg, uint8_t index)
 {
     win.is_msg = false;
     strcpy(win.title, title);
@@ -180,7 +180,7 @@ void window_value_init(char title[], uint8_t select, uint8_t *value, uint8_t max
 }
 
 // 弹窗消息初始化
-void window_msg_init(char title[], char sub_title[])
+void window_msg_init(const char *title, const char *sub_title)
 {
     win.is_msg = true;
     strcpy(win.title, title);

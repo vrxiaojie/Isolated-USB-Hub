@@ -49,8 +49,8 @@ int getProgress(size_t progress, size_t total)
     {
         // Serial.printf("进度: %d%%\n", percent);
         lastPercent = percent;
-        return percent;
     }
+    return percent;
 }
 
 // 执行OTA更新的核心函数
@@ -262,7 +262,7 @@ bool checkForOTA()
         {
             String payload = http.getString();
 
-            DynamicJsonDocument doc(1024);
+            JsonDocument doc;
             DeserializationError error = deserializeJson(doc, payload);
 
             if (error)
@@ -347,7 +347,7 @@ void checkOTAReady()
         {
             String payload = http.getString();
 
-            DynamicJsonDocument doc(1024);
+            JsonDocument doc;
             DeserializationError error = deserializeJson(doc, payload);
 
             if (error)
