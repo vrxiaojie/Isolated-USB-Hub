@@ -6,7 +6,7 @@
 btn_t btn;
 
 // 编码器旋转判断
-void knob_inter()
+static void knob_inter()
 {
     static unsigned long lastInterruptTime = 0;
     unsigned long interruptTime = millis();
