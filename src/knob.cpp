@@ -8,28 +8,23 @@ btn_t btn;
 // 编码器旋转判断
 void knob_inter()
 {
-    btn.alv = digitalRead(AIO);
-    btn.blv = digitalRead(BIO);
-    if (!btn.flag && btn.alv == LOW)
-    {
-        btn.CW_1 = btn.blv;
-        btn.flag = true;
-    }
-    if (btn.flag && btn.alv)
-    {
-        btn.CW_2 = !btn.blv;
-        if (btn.CW_1 && btn.CW_2)
-        {
-            btn.id = BTN_ID_CW;
-            btn.pressed = true;
-        }
-        if (btn.CW_1 == false && btn.CW_2 == false)
+    static unsigned long lastInterruptTime = 0;
+    unsigned long interruptTime = millis();
+
+    if (interruptTime - lastInterruptTime > 5)
+    { // Debounce
+        if (digitalRead(BIO) == digitalRead(AIO))
         {
             btn.id = BTN_ID_CC;
             btn.pressed = true;
         }
-        btn.flag = false;
+        else
+        {
+            btn.id = BTN_ID_CW;
+            btn.pressed = true;
+        }
     }
+    lastInterruptTime = interruptTime;
 }
 
 void btn_init()
