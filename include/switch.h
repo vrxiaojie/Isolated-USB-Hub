@@ -23,7 +23,20 @@ enum
     SW_ON
 };
 
+/**
+ * @brief 初始化USB开关控制引脚
+ */
 void switch_pin_init();
+
+/**
+ * @brief 过流保护中断服务程序
+ */
 void over_current_ISR();
+
+/**
+ * @brief 控制指定的USB端口开关
+ * @param n 要控制的开关编号 (SW1, SW2, SW3, SW4)
+ * @param status 要设置的状态 (SW_ON or SW_OFF)
+ */
 void switch_ctrl(uint8_t n, uint8_t status);
 #endif
