@@ -56,8 +56,8 @@ void setup()
     WiFi.begin();
   }
   xTaskCreate(INA226_Task, "ina226", 1024 * 10, NULL, 4, &INA226_Task_Handle);
-  xTaskCreate(btn_scan, "knob", 1024 * 20, NULL, 5, NULL);
-  xTaskCreate(OVC_detect_Task, "OVC_Task", 1024 * 10, NULL, 3, &OVC_detect_Task_Handler);
+  xTaskCreate(btn_scan, "knob", 1024 * 4, NULL, 5, NULL);
+  xTaskCreate(OVC_detect_Task, "OVC_Task", 1024 * 4, NULL, 3, &OVC_detect_Task_Handler);
   xTaskCreate(WebSocket_Task, "ws", 20 * 1024, NULL, 4, &webSocketTaskHandle);
 }
 
