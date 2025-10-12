@@ -30,5 +30,8 @@ struct btn_t
 
 extern btn_t btn;
 
+/**
+ * @brief 初始化旋钮编码器和按键的引脚
+ */
 void btn_init();
 #endif

@@ -22,20 +22,73 @@ struct wifi_t
 };
 extern wifi_t wifi;
 
-//===========需要调用的函数===========
-void checkConnect(bool reConnect); // 检测wifi是否已经连接
-bool restoreWiFi();                // 删除保存的wifi信息
-void checkDNS_HTTP();              // 检测客户端DNS&HTTP请求
-bool connectToWiFi(int timeOut_s); // 连接WiFi
+/**
+ * @brief 检测WiFi是否已经连接
+ * @param reConnect 如果WiFi未连接，是否尝试重新连接
+ */
+void checkConnect(bool reConnect);
 
-//===========内部函数===========
-void handleRoot();       // 处理网站根目录的访问请求
-void handleConfigWifi(); // 提交数据后的提示页面
-void handleNotFound();   // 处理404情况的函数'handleNotFound'
-void initSoftAP();       // 进入AP模式
-void initDNS();          // 开启DNS服务器
-void initWebServer();    // 初始化WebServer
-bool scanWiFi(int n);    // 扫描附近的WiFi，为了显示在配网界面
-void wifiConfig();       // 配置配网功能
+/**
+ * @brief 删除保存的WiFi信息
+ * @return true 如果成功删除
+ * @return false 如果删除失败
+ */
+bool restoreWiFi();
+
+/**
+ * @brief 在AP配网模式下，处理DNS和HTTP请求
+ */
+void checkDNS_HTTP();
+
+/**
+ * @brief 连接到WiFi
+ * @param timeOut_s 连接超时时间（秒）
+ * @return true 如果连接成功
+ * @return false 如果连接失败
+ */
+bool connectToWiFi(int timeOut_s);
+
+/**
+ * @brief 处理Web服务器的根路径("/")请求，显示配网页面
+ */
+void handleRoot();
+
+/**
+ * @brief 处理从配网页面提交的WiFi凭证
+ */
+void handleConfigWifi();
+
+/**
+ * @brief 处理404 Not Found错误，重定向到根页面
+ */
+void handleNotFound();
+
+/**
+ * @brief 初始化Soft AP（接入点）模式
+ */
+void initSoftAP();
+
+/**
+ * @brief 初始化DNS服务器，用于强制门户
+ */
+void initDNS();
+
+/**
+ * @brief 初始化WebServer，设置URL处理函数
+ */
+void initWebServer();
+
+/**
+ * @brief 扫描附近的WiFi网络
+ * @param n 扫描到的网络数量
+ * @return true 如果扫描到网络
+ * @return false 如果没有扫描到网络
+ */
+bool scanWiFi(int n);
+
+/**
+ * @brief 配置WiFi连接，包括启动AP模式和Web服务器进行配网
+ */
+void wifiConfig();
 
 #endif
