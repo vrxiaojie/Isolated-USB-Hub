@@ -241,13 +241,44 @@ struct usb_switch_t
 };
 extern usb_switch_t usb_switch;
 
+/**
+ * @brief 初始化UI参数
+ */
 void ui_param_init();
+
+/**
+ * @brief 初始化UI
+ */
 void ui_init();
+
+/**
+ * @brief 初始化磁贴参数
+ */
 void tile_param_init();
+
+/**
+ * @brief UI处理函数，应在主循环中调用
+ */
 void ui_proc();
-void oled_init();
-void set_usb_monitor_param();
+
+/**
+ * @brief 初始化一个消息弹窗
+ * @param title 弹窗主标题
+ * @param sub_title 弹窗副标题
+ */
 void window_msg_init(const char *title, const char *sub_title);
+
+/**
+ * @brief 初始化一个可调数值的弹窗
+ * @param title 弹窗标题
+ * @param select 当前选择项
+ * @param value 指向要修改的数值的指针
+ * @param max 数值的最大值
+ * @param min 数值的最小值
+ * @param step 每次调整的步长
+ * @param bg 背景菜单
+ * @param index 当前菜单索引
+ */
 void window_value_init(const char *title, uint8_t select, uint8_t *value, uint8_t max, uint8_t min, uint8_t step, MENU *bg, uint8_t index);
 
 #endif
