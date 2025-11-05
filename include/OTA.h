@@ -1,6 +1,6 @@
 #ifndef OTA_H_
 #define OTA_H_
-#define FIRMWARE_VERSION "1.3.0"
+#define FIRMWARE_VERSION "1.3.0.1"
 /**
  * @brief 检查是否有可用的OTA更新
  * @return true 如果有可用的更新
