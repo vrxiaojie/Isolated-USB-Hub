@@ -16,15 +16,15 @@ void setup()
 {
   Serial.begin(115200);
   Wire.begin(SDA, SCL);
+
+  EEPROM_read_ui_setting();
+  EEPROM_read_wifi_setting();
+  EEPROM_read_monitor_setting();
   oled_init();
 
   // 检查是否进入OTA更新模式
   checkOTAReady();
 
-  EEPROM_read_ui_setting();
-  EEPROM_read_wifi_setting();
-  EEPROM_read_monitor_setting();
-  u8g2.setContrast(ui.param[DISP_BRI]); // 设置亮度
   ui_init();
   btn_init();
   switch_pin_init();
