@@ -9,147 +9,91 @@ eeprom_t eeprom;
 // check: 写入前判断值是否修改 避免重复擦写
 void EEPROM_write_ui_setting(bool check)
 {
-    Preferences prefs; // 声明Preferences对象
+    Preferences prefs;
     prefs.begin("ui");
     for (uint8_t i = 0; i < UI_PARAM; i++)
     {
         switch (i)
         {
         case DISP_BRI:
-            if (check && prefs.getUChar("DISP_BRI", ui.param[DISP_BRI]) != ui.param[DISP_BRI])
-            {
-                prefs.putUChar("DISP_BRI", ui.param[DISP_BRI]);
-            }
-            else
+            if (prefs.getUChar("DISP_BRI", ui.param[DISP_BRI]) != ui.param[DISP_BRI])
             {
                 prefs.putUChar("DISP_BRI", ui.param[DISP_BRI]);
             }
         case TILE_ANI:
-            if (check && prefs.getUChar("TILE_ANI", ui.param[TILE_ANI]) != ui.param[TILE_ANI])
-            {
-                prefs.putUChar("TILE_ANI", ui.param[TILE_ANI]);
-            }
-            else
+            if (prefs.getUChar("TILE_ANI", ui.param[TILE_ANI]) != ui.param[TILE_ANI])
             {
                 prefs.putUChar("TILE_ANI", ui.param[TILE_ANI]);
             }
             break;
         case LIST_ANI:
-            if (check && prefs.getUChar("LIST_ANI", ui.param[LIST_ANI]) != ui.param[LIST_ANI])
-            {
-                prefs.putUChar("LIST_ANI", ui.param[LIST_ANI]);
-            }
-            else
+            if (prefs.getUChar("LIST_ANI", ui.param[LIST_ANI]) != ui.param[LIST_ANI])
             {
                 prefs.putUChar("LIST_ANI", ui.param[LIST_ANI]);
             }
             break;
         case WIN_ANI:
-            if (check && prefs.getUChar("WIN_ANI", ui.param[WIN_ANI]) != ui.param[WIN_ANI])
-            {
-                prefs.putUChar("WIN_ANI", ui.param[WIN_ANI]);
-            }
-            else
+            if (prefs.getUChar("WIN_ANI", ui.param[WIN_ANI]) != ui.param[WIN_ANI])
             {
                 prefs.putUChar("WIN_ANI", ui.param[WIN_ANI]);
             }
             break;
         case SPOT_ANI:
-            if (check && prefs.getUChar("SPOT_ANI", ui.param[SPOT_ANI]) != ui.param[SPOT_ANI])
-            {
-                prefs.putUChar("SPOT_ANI", ui.param[SPOT_ANI]);
-            }
-            else
+            if (prefs.getUChar("SPOT_ANI", ui.param[SPOT_ANI]) != ui.param[SPOT_ANI])
             {
                 prefs.putUChar("SPOT_ANI", ui.param[SPOT_ANI]);
             }
             break;
         case TAG_ANI:
-            if (check && prefs.getUChar("TAG_ANI", ui.param[TAG_ANI]) != ui.param[TAG_ANI])
-            {
-                prefs.putUChar("TAG_ANI", ui.param[TAG_ANI]);
-            }
-            else
+            if (prefs.getUChar("TAG_ANI", ui.param[TAG_ANI]) != ui.param[TAG_ANI])
             {
                 prefs.putUChar("TAG_ANI", ui.param[TAG_ANI]);
             }
             break;
         case FADE_ANI:
-            if (check && prefs.getUChar("FADE_ANI", ui.param[FADE_ANI]) != ui.param[FADE_ANI])
-            {
-                prefs.putUChar("FADE_ANI", ui.param[FADE_ANI]);
-            }
-            else
+            if (prefs.getUChar("FADE_ANI", ui.param[FADE_ANI]) != ui.param[FADE_ANI])
             {
                 prefs.putUChar("FADE_ANI", ui.param[FADE_ANI]);
             }
             break;
         case BTN_SPT:
-            if (check && prefs.getUChar("BTN_SPT", ui.param[BTN_SPT]) != ui.param[BTN_SPT])
-            {
-                prefs.putUChar("BTN_SPT", ui.param[BTN_SPT]);
-            }
-            else
+            if (prefs.getUChar("BTN_SPT", ui.param[BTN_SPT]) != ui.param[BTN_SPT])
             {
                 prefs.putUChar("BTN_SPT", ui.param[BTN_SPT]);
             }
             break;
         case BTN_LPT:
-            if (check && prefs.getUChar("BTN_LPT", ui.param[BTN_LPT]) != ui.param[BTN_LPT])
-            {
-                prefs.putUChar("BTN_LPT", ui.param[BTN_LPT]);
-            }
-            else
+            if (prefs.getUChar("BTN_LPT", ui.param[BTN_LPT]) != ui.param[BTN_LPT])
             {
                 prefs.putUChar("BTN_LPT", ui.param[BTN_LPT]);
             }
             break;
         case TILE_UFD:
-            if (check && prefs.getUChar("TILE_UFD", ui.param[TILE_UFD]) != ui.param[TILE_UFD])
-            {
-                prefs.putUChar("TILE_UFD", ui.param[TILE_UFD]);
-            }
-            else
+            if (prefs.getUChar("TILE_UFD", ui.param[TILE_UFD]) != ui.param[TILE_UFD])
             {
                 prefs.putUChar("TILE_UFD", ui.param[TILE_UFD]);
             }
             break;
         case LIST_UFD:
-            if (check && prefs.getUChar("LIST_UFD", ui.param[LIST_UFD]) != ui.param[LIST_UFD])
-            {
-                prefs.putUChar("LIST_UFD", ui.param[LIST_UFD]);
-            }
-            else
+            if (prefs.getUChar("LIST_UFD", ui.param[LIST_UFD]) != ui.param[LIST_UFD])
             {
                 prefs.putUChar("LIST_UFD", ui.param[LIST_UFD]);
             }
             break;
         case TILE_LOOP:
-            if (check && prefs.getUChar("TILE_LOOP", ui.param[TILE_LOOP]) != ui.param[TILE_LOOP])
-            {
-                prefs.putUChar("TILE_LOOP", ui.param[TILE_LOOP]);
-            }
-            else
+            if (prefs.getUChar("TILE_LOOP", ui.param[TILE_LOOP]) != ui.param[TILE_LOOP])
             {
                 prefs.putUChar("TILE_LOOP", ui.param[TILE_LOOP]);
             }
             break;
         case LIST_LOOP:
-            if (check && prefs.getUChar("LIST_LOOP", ui.param[LIST_LOOP]) != ui.param[LIST_LOOP])
-            {
-                prefs.putUChar("LIST_LOOP", ui.param[LIST_LOOP]);
-            }
-            else
+            if (prefs.getUChar("LIST_LOOP", ui.param[LIST_LOOP]) != ui.param[LIST_LOOP])
             {
                 prefs.putUChar("LIST_LOOP", ui.param[LIST_LOOP]);
             }
             break;
         case WIN_BOK:
-            if (check && prefs.getUChar("WIN_BOK", ui.param[WIN_BOK]) != ui.param[WIN_BOK])
-            {
-                prefs.putUChar("WIN_BOK", ui.param[WIN_BOK]);
-            }
-            else
+            if (prefs.getUChar("WIN_BOK", ui.param[WIN_BOK]) != ui.param[WIN_BOK])
             {
                 prefs.putUChar("WIN_BOK", ui.param[WIN_BOK]);
             }
@@ -162,7 +106,7 @@ void EEPROM_write_ui_setting(bool check)
 // 写入单个数据
 void EEPROM_write_single_data(const char *part_name, const char *name, uint32_t value)
 {
-    Preferences prefs; // 声明Preferences对象
+    Preferences prefs;
     prefs.begin(part_name);
     prefs.putUChar(name, value);
     prefs.end();
@@ -171,7 +115,7 @@ void EEPROM_write_single_data(const char *part_name, const char *name, uint32_t 
 // 读取单个数据
 uint32_t EEPROM_read_single_data(const char *part_name, const char *name)
 {
-    Preferences prefs; // 声明Preferences对象
+    Preferences prefs;
     prefs.begin(part_name);
     uint32_t val = prefs.getUChar(name);
     prefs.end();
@@ -180,7 +124,7 @@ uint32_t EEPROM_read_single_data(const char *part_name, const char *name)
 
 void EEPROM_read_ui_setting()
 {
-    Preferences prefs; // 声明Preferences对象
+    Preferences prefs;
     prefs.begin("ui");
     if (prefs.getBool("eeprom_init", false) == false) // 新设备没有初始化过，将会自动初始化并存入设置
     {
@@ -246,7 +190,7 @@ void EEPROM_read_ui_setting()
 
 void EEPROM_write_wifi_setting()
 {
-    Preferences prefs; // 声明Preferences对象
+    Preferences prefs;
     prefs.begin("WIFI");
     for (uint8_t i = 0; i < WIFI_PARAM; i++)
     {
@@ -271,7 +215,7 @@ void EEPROM_write_wifi_setting()
 
 void EEPROM_read_wifi_setting()
 {
-    Preferences prefs; // 声明Preferences对象
+    Preferences prefs;
     prefs.begin("WIFI");
     for (uint8_t i = 0; i < WIFI_PARAM; i++)
     {
@@ -290,7 +234,7 @@ void EEPROM_read_wifi_setting()
 // 获取激活状态
 bool EEPROM_read_activation()
 {
-    Preferences prefs; // 声明Preferences对象
+    Preferences prefs;
     prefs.begin("activation");
     return prefs.getBool("activated", false);
 }
@@ -298,7 +242,7 @@ bool EEPROM_read_activation()
 // 保存激活结果
 void EEPROM_write_activation()
 {
-    Preferences prefs; // 声明Preferences对象
+    Preferences prefs;
     prefs.begin("activation");
     prefs.putBool("activated", true);
     prefs.end();
@@ -306,7 +250,7 @@ void EEPROM_write_activation()
 
 void EEPROM_write_monitor_setting()
 {
-    Preferences prefs; // 声明Preferences对象
+    Preferences prefs;
     prefs.begin("usb_monitor");
     for (uint8_t i = 0; i < USB_MONITOR_PARAM; i++)
     {
@@ -331,7 +275,7 @@ void EEPROM_write_monitor_setting()
 
 void EEPROM_read_monitor_setting()
 {
-    Preferences prefs; // 声明Preferences对象
+    Preferences prefs;
     prefs.begin("usb_monitor");
     for (uint8_t i = 0; i < USB_MONITOR_PARAM; i++)
     {
@@ -349,7 +293,7 @@ void EEPROM_read_monitor_setting()
 
 void EEPROM_write_ota_flag(bool flag)
 {
-    Preferences prefs; // 声明Preferences对象
+    Preferences prefs;
     prefs.begin("ota");
     prefs.putBool("ota_ready", flag);
     prefs.end();
@@ -357,14 +301,14 @@ void EEPROM_write_ota_flag(bool flag)
 
 bool EEPROM_read_ota_flag()
 {
-    Preferences prefs; // 声明Preferences对象
+    Preferences prefs;
     prefs.begin("ota");
     return prefs.getBool("ota_ready", false);
 }
 
 void EEPROM_clear_namespace(const char *ns)
 {
-    Preferences prefs; // 声明Preferences对象
+    Preferences prefs;
     prefs.begin(ns);
     prefs.clear();
     prefs.end();
